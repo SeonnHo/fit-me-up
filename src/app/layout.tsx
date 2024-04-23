@@ -1,14 +1,11 @@
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
+import { Nanum_Gothic } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 
-const nanumGothic = localFont({
-  src: [
-    {
-      path: './fonts/NanumGothic.ttf',
-    },
-  ],
+const nanumGothic = Nanum_Gothic({
+  weight: ['400', '700', '800'],
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
