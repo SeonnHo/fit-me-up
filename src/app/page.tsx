@@ -27,16 +27,16 @@ export default function Home() {
   ];
 
   return (
-    <main className="lg:max-w-screen-lg mx-auto">
-      <section>
-        <div className="mt-10 relative">
+    <main className="lg:max-w-screen-lg mx-auto h-screen flex justify-center items-center">
+      <section className="w-full">
+        <div className="relative">
           <Image
             src={mirrorImage}
             alt="거울이미지"
-            className="opacity-40 sm:w-[500px] mx-auto"
+            className="opacity-40 sm:w-[500px] mx-auto max-sm:w-[300px]"
           />
           <h2 className="absolute top-1/2 left-1/2 font-bold text-center text-3xl max-sm:text-xl max-sm:w-full leading-normal -translate-x-1/2 -translate-y-1/2 [text-shadow:_0_5px_10px_gray]">
-            패션의 모든 것
+            어제보다 오늘
             <br />
             핏미업에서 더욱 더 핏하게
           </h2>
