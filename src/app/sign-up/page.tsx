@@ -17,6 +17,19 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import Link from 'next/link';
+import { signOut, useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const passwordRegex =
   /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$&*?!%])[A-Za-z\d!@$%&*?]{8,15}$/;
@@ -53,6 +66,10 @@ const formSchema = z
   });
 
 export default function SignUpPage() {
+  const { data: session } = useSession();
+  const [isLogined, setIsLogined] = useState(false);
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,105 +80,145 @@ export default function SignUpPage() {
     },
   });
 
-  const submit = (values: z.infer<typeof formSchema>) => {
+  const submit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
+    const { confirmPassword, ...body } = values;
+    console.log(body);
+
+    await fetch('/api/user/signup', {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then((res) => res.json())
+      .catch((error) => console.log(error))
+      .then((data) => console.log(data));
   };
 
+  useEffect(() => {
+    if (session) {
+      setIsLogined(true);
+    }
+    console.log(session);
+  }, [session]);
+
   return (
-    <main className="flex justify-center items-center h-screen">
-      <Card className="w-[500px] max-sm:w-full max-sm:border-none max-sm:shadow-none">
-        <CardHeader>
-          <CardTitle className="text-center">회원가입</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(submit)} className="space-y-5">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>이메일</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="이메일"
-                        {...field}
-                        autoComplete="email"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>비밀번호</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="비밀번호"
-                        autoComplete="new-password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>비밀번호 확인</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="비밀번호 확인"
-                        autoComplete="new-password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="nickname"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>닉네임</FormLabel>
-                    <div className="flex">
+    <>
+      <main className="flex justify-center items-center h-screen">
+        <Card className="w-[500px] max-sm:w-full max-sm:border-none max-sm:shadow-none">
+          <CardHeader>
+            <CardTitle className="text-center">회원가입</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(submit)} className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>이메일</FormLabel>
                       <FormControl>
-                        <Input type="text" placeholder="닉네임" {...field} />
+                        <Input
+                          type="email"
+                          placeholder="이메일"
+                          {...field}
+                          autoComplete="email"
+                        />
                       </FormControl>
-                      <Button
-                        type="button"
-                        variant={'outline'}
-                        className="ml-4 font-bold"
-                      >
-                        중복확인
-                      </Button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full font-bold">
-                회원가입
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </main>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>비밀번호</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="비밀번호"
+                          autoComplete="new-password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>비밀번호 확인</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="비밀번호 확인"
+                          autoComplete="new-password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="nickname"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>닉네임</FormLabel>
+                      <div className="flex">
+                        <FormControl>
+                          <Input type="text" placeholder="닉네임" {...field} />
+                        </FormControl>
+                        <Button
+                          type="button"
+                          variant={'outline'}
+                          className="ml-4 font-bold"
+                        >
+                          중복확인
+                        </Button>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full font-bold">
+                  회원가입
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </main>
+      {isLogined && (
+        <AlertDialog open={isLogined} onOpenChange={setIsLogined}>
+          <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
+            <AlertDialogHeader>
+              <AlertDialogTitle>로그아웃 하시겠습니까?</AlertDialogTitle>
+              <AlertDialogDescription>
+                해당 페이지는 로그아웃 후 이용하실 수 있습니다.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => router.replace('/')}>
+                취소
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={() => signOut({ callbackUrl: '/' })}>
+                확인
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </>
   );
 }
