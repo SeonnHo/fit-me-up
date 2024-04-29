@@ -16,28 +16,26 @@ export default function Home() {
     },
     {
       title: '남성 게시판',
-      subtitle: '오늘의 남자패션 이야기',
+      subtitle: '오늘의 남성패션 이야기',
       href: '/post/man',
     },
     {
       title: '여성 게시판',
-      subtitle: '오늘의 여자패션 이야기',
+      subtitle: '오늘의 여성패션 이야기',
       href: '/post/woman',
     },
   ];
 
   return (
     <main className="lg:max-w-screen-lg mx-auto h-screen flex justify-center items-center">
-      <section className="w-full">
+      <section className="w-full max-sm:mt-[100px]">
         <div className="relative">
           <Image
             src={mirrorImage}
             alt="거울이미지"
             className="opacity-40 sm:w-[500px] mx-auto max-sm:w-[300px]"
           />
-          <h2 className="absolute top-1/2 left-1/2 font-bold text-center text-3xl max-sm:text-xl max-sm:w-full leading-normal -translate-x-1/2 -translate-y-1/2 [text-shadow:_0_5px_10px_gray]">
-            어제보다 오늘
-            <br />
+          <h2 className="absolute top-1/2 left-1/2 font-bold text-center text-3xl max-sm:text-lg max-sm:w-full leading-normal -translate-x-1/2 -translate-y-1/2 [text-shadow:_0_5px_10px_gray]">
             핏미업에서 더욱 더 핏하게
           </h2>
         </div>
