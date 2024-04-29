@@ -1,6 +1,18 @@
+import { connectDB } from '@/lib/database';
 import { NextApiRequest } from 'next';
 import NextAuth, { RequestInternal } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import KakaoProvider from 'next-auth/providers/kakao';
+import NaverProvider from 'next-auth/providers/naver';
+import GoogleProvider from 'next-auth/providers/google';
+
+interface User {
+  _id: string;
+  email: string | null | undefined;
+  password: string | null | undefined;
+  nickname: string;
+  type: string;
+}
 
 const handler = NextAuth({
   providers: [
@@ -36,8 +48,113 @@ const handler = NextAuth({
         }
       },
     }),
+    KakaoProvider({
+      clientId: process.env.KAKAO_CLIENT_ID!,
+      clientSecret: process.env.KAKAO_CLIENT_SECRET!,
+      profile(profile) {
+        return {
+          id: String(profile.id),
+          email: profile.email,
+          image: profile.properties.profile_image,
+          nickname: profile.properties.nickname,
+        };
+      },
+    }),
+    NaverProvider({
+      clientId: process.env.NAVER_CLIENT_ID!,
+      clientSecret: process.env.NAVER_CLIENT_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.response.id,
+          email: undefined,
+          nickname: profile.response.nickname,
+          image: profile.response.profile_image,
+        };
+      },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          email: profile.email,
+          image: profile.picture,
+          nickname: profile.name,
+        };
+      },
+    }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === 'kakao') {
+        const database = connectDB.db('fit_me_up');
+        const usersCollection = database.collection<User>('users');
+
+        const existingUser = await usersCollection.findOne<User>({
+          _id: user.id,
+        });
+
+        if (!existingUser) {
+          const newUser = await usersCollection.insertOne({
+            _id: user.id,
+            email: null,
+            password: null,
+            nickname: user.nickname!,
+            type: account!.provider,
+          });
+
+          return `/sign-up/oauth/${account!.provider}/${newUser.insertedId}`;
+        }
+        user.nickname = existingUser.nickname;
+      }
+
+      if (account?.provider === 'naver') {
+        const database = connectDB.db('fit_me_up');
+        const usersCollection = database.collection<User>('users');
+
+        const existingUser = await usersCollection.findOne<User>({
+          _id: user.id,
+        });
+
+        if (!existingUser) {
+          const newUser = await usersCollection.insertOne({
+            _id: user.id,
+            email: null,
+            password: null,
+            nickname: user.nickname!,
+            type: account.provider,
+          });
+
+          return `/sign-up/oauth/${account.provider}/${newUser.insertedId}`;
+        }
+        user.nickname = existingUser.nickname;
+      }
+
+      if (account?.provider === 'google') {
+        const database = connectDB.db('fit_me_up');
+        const usersCollection = database.collection<User>('users');
+
+        const existingUser = await usersCollection.findOne<User>({
+          _id: user.id,
+        });
+
+        if (!existingUser) {
+          const newUser = await usersCollection.insertOne({
+            _id: user.id,
+            email: user.email,
+            password: null,
+            nickname: user.nickname!,
+            type: account.provider,
+          });
+
+          return `/sign-up/oauth/${account.provider}/${newUser.insertedId}`;
+        }
+        user.nickname = existingUser.nickname;
+      }
+
+      return true;
+    },
     async jwt({ token, user }) {
       return { ...token, ...user };
     },
