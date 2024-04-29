@@ -10,4 +10,8 @@ declare module 'next-auth' {
       accessToken?: string | null | undefined;
     };
   }
+
+  interface User {
+    nickname?: string | null | undefined;
+  }
 }
