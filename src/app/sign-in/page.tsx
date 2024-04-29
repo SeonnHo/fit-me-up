@@ -52,10 +52,31 @@ export default function SignInPage() {
     },
   });
 
-  const submit = async (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     await signIn('credentials', {
       email: values.email,
       password: values.password,
+      redirect: true,
+      callbackUrl: '/',
+    });
+  };
+
+  const handleKakaoSignIn = async () => {
+    await signIn('kakao', {
+      redirect: true,
+      callbackUrl: '/',
+    });
+  };
+
+  const handleNaverSignIn = async () => {
+    await signIn('naver', {
+      redirect: true,
+      callbackUrl: '/',
+    });
+  };
+
+  const handleGoogleSignIn = async () => {
+    await signIn('google', {
       redirect: true,
       callbackUrl: '/',
     });
@@ -65,7 +86,6 @@ export default function SignInPage() {
     if (session) {
       setIsLogined(true);
     }
-    console.log(session);
   }, [session]);
 
   return (
@@ -77,7 +97,10 @@ export default function SignInPage() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(submit)} className="space-y-5">
+              <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="space-y-5"
+              >
                 <FormField
                   control={form.control}
                   name="email"
@@ -128,53 +151,68 @@ export default function SignInPage() {
                 회원가입
               </Link>
             </div>
-            {/* <div className="flex items-center my-4">
-            <Separator className="shrink" />
-            <p className="whitespace-nowrap mx-2 text-zinc-600 uppercase font-bold text-xs">
-              sign in with
-            </p>
-            <Separator className="shrink" />
-          </div>
-          <div className="flex flex-col space-y-3">
-            <Button variant={'outline'} type="button" className="font-bold">
-              <Image
-                src={
-                  'https://t1.kakaocdn.net/kakaocorp/kakaocorp/admin/5f9c58c2017800001.png'
-                }
-                alt="카카오톡 로고 이미지"
-                width={25}
-                height={25}
-                className="mr-2"
-              />
-              카카오톡 로그인
-            </Button>
+            <div className="flex items-center my-4">
+              <Separator className="shrink" />
+              <p className="whitespace-nowrap mx-2 text-zinc-600 uppercase font-bold text-xs">
+                or
+              </p>
+              <Separator className="shrink" />
+            </div>
+            <div className="flex flex-col space-y-3">
+              <Button
+                variant={'outline'}
+                type="button"
+                className="font-bold"
+                onClick={handleKakaoSignIn}
+              >
+                <Image
+                  src={
+                    'https://t1.kakaocdn.net/kakaocorp/kakaocorp/admin/5f9c58c2017800001.png'
+                  }
+                  alt="카카오톡 로고 이미지"
+                  width={25}
+                  height={25}
+                  className="mr-2"
+                />
+                카카오톡 로그인
+              </Button>
 
-            <Button variant={'outline'} type="button" className="font-bold">
-              <Image
-                src={
-                  'https://i.namu.wiki/i/-3o7KZm62Py7rKnckl1IGUKcKXUcIeStfLlJgXkXHarYkqPwoQ2CfDZPk5zh7e0LQwoYdP07z0jVLO8IaU6Z70CEHP6kgX1bPAcIu0MeNexAVH2fQJkMDHWg26DilQtObvv-a41VLXCGKH6ALrg27Q.svg'
-                }
-                alt="네이버 로고 이미지"
-                width={25}
-                height={25}
-                className="mr-2"
-              />
-              네이버 로그인
-            </Button>
+              <Button
+                variant={'outline'}
+                type="button"
+                className="font-bold"
+                onClick={handleNaverSignIn}
+              >
+                <Image
+                  src={
+                    'https://i.namu.wiki/i/-3o7KZm62Py7rKnckl1IGUKcKXUcIeStfLlJgXkXHarYkqPwoQ2CfDZPk5zh7e0LQwoYdP07z0jVLO8IaU6Z70CEHP6kgX1bPAcIu0MeNexAVH2fQJkMDHWg26DilQtObvv-a41VLXCGKH6ALrg27Q.svg'
+                  }
+                  alt="네이버 로고 이미지"
+                  width={25}
+                  height={25}
+                  className="mr-2"
+                />
+                네이버 로그인
+              </Button>
 
-            <Button variant={'outline'} type="button" className="font-bold">
-              <Image
-                src={
-                  'https://lh3.googleusercontent.com/cYinAwcg0UYHuljAGk0_ZbSq_FJb2iMU2TTPM0Y7ORjDNMDPH1ltJbX6573rHuHu6poQ796iQ8t3s-6PmfexI4qRBNs7ruEpWAmVeBLzeJWkFgd0ar0=h120'
-                }
-                alt="구글 로고 이미지"
-                width={25}
-                height={25}
-                className="mr-2"
-              />
-              구글 로그인
-            </Button>
-          </div> */}
+              <Button
+                variant={'outline'}
+                type="button"
+                className="font-bold"
+                onClick={handleGoogleSignIn}
+              >
+                <Image
+                  src={
+                    'https://lh3.googleusercontent.com/cYinAwcg0UYHuljAGk0_ZbSq_FJb2iMU2TTPM0Y7ORjDNMDPH1ltJbX6573rHuHu6poQ796iQ8t3s-6PmfexI4qRBNs7ruEpWAmVeBLzeJWkFgd0ar0=h120'
+                  }
+                  alt="구글 로고 이미지"
+                  width={25}
+                  height={25}
+                  className="mr-2"
+                />
+                구글 로그인
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </main>
