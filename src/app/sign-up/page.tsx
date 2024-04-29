@@ -14,9 +14,6 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import Image from 'next/image';
-import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -30,6 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useToast } from '@/components/ui/use-toast';
 
 const passwordRegex =
   /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$&*?!%])[A-Za-z\d!@$%&*?]{8,15}$/;
@@ -68,7 +66,10 @@ const formSchema = z
 export default function SignUpPage() {
   const { data: session } = useSession();
   const [isLogined, setIsLogined] = useState(false);
+  const [isNicknameCheck, setIsNicknameCheck] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(true);
   const router = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -80,10 +81,8 @@ export default function SignUpPage() {
     },
   });
 
-  const submit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     const { confirmPassword, ...body } = values;
-    console.log(body);
 
     await fetch('/api/user/signup', {
       method: 'POST',
@@ -92,14 +91,57 @@ export default function SignUpPage() {
     })
       .then((res) => res.json())
       .catch((error) => console.log(error))
-      .then((data) => console.log(data));
+      .then(async (data) => {
+        if (data.acknowledged) {
+          toast({
+            title: '회원가입 완료',
+            description: '핏미업에 오신 걸 환영합니다.',
+          });
+          router.replace('/api/auth/signin');
+        }
+      });
+  };
+
+  const handleNicknameDuplicationCheck = async (nickname: string) => {
+    return await fetch('/api/user/check/nickname', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(nickname),
+    })
+      .then((res) => res.json())
+      .catch((e) => console.log(e))
+      .then((data) => {
+        if (data) {
+          toast({
+            variant: 'destructive',
+            title: '중복된 닉네임',
+            description: '다른 닉네임으로 변경 후 재시도 하세요.',
+          });
+        } else {
+          toast({
+            title: '사용 가능한 닉네임',
+            description: '현재 입력한 닉네임으로 가입 가능해요.',
+          });
+          setIsNicknameCheck(true);
+          setIsDisabled(false);
+        }
+      });
+  };
+
+  const handleNicknameChange = () => {
+    if (form.watch('nickname')) {
+      setIsNicknameCheck(false);
+      setIsDisabled(true);
+    } else {
+      setIsNicknameCheck(true);
+      setIsDisabled(true);
+    }
   };
 
   useEffect(() => {
     if (session) {
       setIsLogined(true);
     }
-    console.log(session);
   }, [session]);
 
   return (
@@ -111,7 +153,10 @@ export default function SignUpPage() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(submit)} className="space-y-5">
+              <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="space-y-5"
+              >
                 <FormField
                   control={form.control}
                   name="email"
@@ -176,13 +221,17 @@ export default function SignUpPage() {
                     <FormItem>
                       <FormLabel>닉네임</FormLabel>
                       <div className="flex">
-                        <FormControl>
+                        <FormControl onChange={handleNicknameChange}>
                           <Input type="text" placeholder="닉네임" {...field} />
                         </FormControl>
                         <Button
                           type="button"
                           variant={'outline'}
                           className="ml-4 font-bold"
+                          onClick={() =>
+                            handleNicknameDuplicationCheck(field.value)
+                          }
+                          disabled={isNicknameCheck}
                         >
                           중복확인
                         </Button>
@@ -191,7 +240,11 @@ export default function SignUpPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full font-bold">
+                <Button
+                  type="submit"
+                  className="w-full font-bold"
+                  disabled={isDisabled}
+                >
                   회원가입
                 </Button>
               </form>
@@ -199,6 +252,7 @@ export default function SignUpPage() {
           </CardContent>
         </Card>
       </main>
+
       {isLogined && (
         <AlertDialog open={isLogined} onOpenChange={setIsLogined}>
           <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
