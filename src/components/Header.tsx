@@ -6,7 +6,6 @@ import { signOut, useSession } from 'next-auth/react';
 
 export default function Header() {
   const { data: session } = useSession();
-  console.log('mount');
 
   return (
     <>
@@ -21,7 +20,10 @@ export default function Header() {
                 <p className="text-sm font-bold mr-4">
                   {session.user.nickname}
                 </p>
-                <Button variant={'default'} onClick={() => signOut()}>
+                <Button
+                  variant={'default'}
+                  onClick={() => signOut({ redirect: true, callbackUrl: '/' })}
+                >
                   로그아웃
                 </Button>
               </div>
