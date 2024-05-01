@@ -10,7 +10,7 @@ interface User {
   _id: string;
   email: string | null | undefined;
   password: string | null | undefined;
-  nickname: string;
+  nickname: string | null | undefined;
   type: string;
 }
 
@@ -100,13 +100,18 @@ const handler = NextAuth({
             _id: user.id,
             email: null,
             password: null,
-            nickname: user.nickname!,
+            nickname: null,
             type: account!.provider,
           });
 
           return `/sign-up/oauth/${account!.provider}/${newUser.insertedId}`;
         }
-        user.nickname = existingUser.nickname;
+
+        if (!existingUser.nickname) {
+          return `/sign-up/oauth/${account!.provider}/${existingUser._id}`;
+        } else {
+          user.nickname = existingUser.nickname;
+        }
       }
 
       if (account?.provider === 'naver') {
@@ -122,13 +127,18 @@ const handler = NextAuth({
             _id: user.id,
             email: null,
             password: null,
-            nickname: user.nickname!,
+            nickname: null,
             type: account.provider,
           });
 
           return `/sign-up/oauth/${account.provider}/${newUser.insertedId}`;
         }
-        user.nickname = existingUser.nickname;
+
+        if (!existingUser.nickname) {
+          return `/sign-up/oauth/${account!.provider}/${existingUser._id}`;
+        } else {
+          user.nickname = existingUser.nickname;
+        }
       }
 
       if (account?.provider === 'google') {
@@ -144,13 +154,18 @@ const handler = NextAuth({
             _id: user.id,
             email: user.email,
             password: null,
-            nickname: user.nickname!,
+            nickname: null,
             type: account.provider,
           });
 
           return `/sign-up/oauth/${account.provider}/${newUser.insertedId}`;
         }
-        user.nickname = existingUser.nickname;
+
+        if (!existingUser.nickname) {
+          return `/sign-up/oauth/${account!.provider}/${existingUser._id}`;
+        } else {
+          user.nickname = existingUser.nickname;
+        }
       }
 
       return true;
