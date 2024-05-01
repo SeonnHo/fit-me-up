@@ -30,6 +30,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
+import kakaoLogo from '/public/kakao_logo.svg';
+import naverLogo from '/public/naver_logo.svg';
+import googleLogo from '/public/google_logo.svg';
 
 const formSchema = z.object({
   email: z
@@ -86,6 +89,7 @@ export default function SignInPage() {
     if (session) {
       setIsLogined(true);
     }
+    console.log(session);
   }, [session]);
 
   return (
@@ -143,7 +147,7 @@ export default function SignInPage() {
               </form>
             </Form>
             <div className="flex justify-end items-center my-4">
-              <p className="text-sm">회원가입을 안 하셨나요?</p>
+              <p className="text-sm">아직 회원이 아니신가요?</p>
               <Link
                 href={'/sign-up'}
                 className="ml-2 text-blue-700 p-0 font-bold h-auto text-sm"
@@ -160,57 +164,49 @@ export default function SignInPage() {
             </div>
             <div className="flex flex-col space-y-3">
               <Button
-                variant={'outline'}
                 type="button"
-                className="font-bold"
+                className="bg-[#FEE500] hover:bg-[#FEE500]/80 text-black/85 text-sm px-2 py-0 font-system"
                 onClick={handleKakaoSignIn}
               >
                 <Image
-                  src={
-                    'https://t1.kakaocdn.net/kakaocorp/kakaocorp/admin/5f9c58c2017800001.png'
-                  }
+                  src={kakaoLogo}
                   alt="카카오톡 로고 이미지"
-                  width={25}
-                  height={25}
+                  width={18}
+                  height={18}
                   className="mr-2"
+                  onClick={handleKakaoSignIn}
                 />
-                카카오톡 로그인
+                카카오 로그인
               </Button>
 
               <Button
-                variant={'outline'}
                 type="button"
-                className="font-bold"
+                className="bg-[#03C75A] hover:bg-[#03C75A]/80 text-white text-sm px-2 py-0"
                 onClick={handleNaverSignIn}
               >
                 <Image
-                  src={
-                    'https://i.namu.wiki/i/-3o7KZm62Py7rKnckl1IGUKcKXUcIeStfLlJgXkXHarYkqPwoQ2CfDZPk5zh7e0LQwoYdP07z0jVLO8IaU6Z70CEHP6kgX1bPAcIu0MeNexAVH2fQJkMDHWg26DilQtObvv-a41VLXCGKH6ALrg27Q.svg'
-                  }
+                  src={naverLogo}
                   alt="네이버 로고 이미지"
-                  width={25}
-                  height={25}
-                  className="mr-2"
+                  width={18}
+                  height={18}
+                  className="mr-2 h-[40px] cursor-pointer object-contain"
                 />
                 네이버 로그인
               </Button>
 
               <Button
-                variant={'outline'}
                 type="button"
-                className="font-bold"
+                className="bg-[#FFFFFF] hover:bg-[#EEEEEE]/20 text-black text-sm px-2 py-0 shadow-sm shadow-zinc-200 font-roboto"
                 onClick={handleGoogleSignIn}
               >
                 <Image
-                  src={
-                    'https://lh3.googleusercontent.com/cYinAwcg0UYHuljAGk0_ZbSq_FJb2iMU2TTPM0Y7ORjDNMDPH1ltJbX6573rHuHu6poQ796iQ8t3s-6PmfexI4qRBNs7ruEpWAmVeBLzeJWkFgd0ar0=h120'
-                  }
+                  src={googleLogo}
                   alt="구글 로고 이미지"
-                  width={25}
-                  height={25}
-                  className="mr-2"
+                  width={18}
+                  height={18}
+                  className="mr-2 h-[40px] cursor-pointer object-contain"
                 />
-                구글 로그인
+                Google 계정으로 로그인
               </Button>
             </div>
           </CardContent>
