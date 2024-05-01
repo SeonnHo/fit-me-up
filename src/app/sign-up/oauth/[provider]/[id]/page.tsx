@@ -17,6 +17,7 @@ import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { RiErrorWarningFill } from 'react-icons/ri';
 
 const nicknameRegex = /[a-zA-Z0-9가-힣]/g;
 
@@ -112,8 +113,8 @@ export default function OAuthSignUpPage({ params }: Props) {
   };
 
   return (
-    <main className="flex justify-center items-center h-screen">
-      <Card className="w-[500px] max-sm:w-full max-sm:border-none max-sm:shadow-none">
+    <main className="flex flex-col justify-center items-center h-screen max-sm:justify-start max-sm:pt-[60px]">
+      <Card className="w-[500px] max-sm:w-full max-sm:border-none max-sm:shadow-none relative">
         <CardHeader>
           <CardTitle className="text-center">회원가입</CardTitle>
         </CardHeader>
@@ -159,6 +160,16 @@ export default function OAuthSignUpPage({ params }: Props) {
             </form>
           </Form>
         </CardContent>
+        {isDisabled && (
+          <section className="flex justify-center items-center mt-4 max-sm:flex-col max-sm:px-2 absolute -bottom-10 left-1/2 -translate-x-1/2 w-screen max-sm:-bottom-14">
+            <RiErrorWarningFill className="size-5 text-red-600 mr-2 max-sm:mb-2 shrink-0" />
+            <p className="font-bold text-sm text-red-600 text-center">
+              커뮤니티를 이용하기 위해 닉네임이 필요합니다.&nbsp;
+              <br className="sm:hidden" />
+              닉네임을 정하여 회원가입을 완료해주세요.
+            </p>
+          </section>
+        )}
       </Card>
     </main>
   );
