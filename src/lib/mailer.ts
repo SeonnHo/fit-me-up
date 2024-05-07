@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
 interface MailOptions {
-  to: string;
+  email: string;
   authNumber: string;
 }
 
@@ -22,12 +22,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendEmail = async ({ to, authNumber }: MailOptions) => {
+export const sendEmail = async ({ email, authNumber }: MailOptions) => {
   const authNumberList = authNumber.split('');
 
   const mailOptions = {
     from: process.env.NODEMAILER_USER,
-    to: to,
+    to: email,
     subject: '[핏미업] 회원가입을 위한 이메일 인증 번호입니다.',
     html: `<div
     style='
@@ -49,10 +49,9 @@ export const sendEmail = async ({ to, authNumber }: MailOptions) => {
       <p style='width: 50px; height: 60px; background-color: #eee; border-radius: 8px; text-align: center; font-size: 2rem; font-weight: 700; padding: 10px; line-height: 60px; margin-left: 0.5rem; margin-right: 0.5rem;'>
         ${authNumberList[1]}
       </p>
-      <p style='width: 50px; height: 60px; background-color: #eee; border-radius: 8px; text-align: center; font-size: 2rem; font-weight: 700; padding: 10px; line-height: 60px;'>
+      <p style='width: 50px; height: 60px; background-color: #eee; border-radius: 8px; text-align: center; font-size: 2rem; font-weight: 700; padding: 10px; line-height: 60px; margin-right: 0.5rem;'>
         ${authNumberList[2]}
       </p>
-      <div style='width: 8px; height: 8px; background-color: #000; border-radius: 50%; margin-left: 1rem; margin-right: 1rem;'/>
       <p style='width: 50px; height: 60px; background-color: #eee; border-radius: 8px; text-align: center; font-size: 2rem; font-weight: 700; padding: 10px; line-height: 60px;'>
         ${authNumberList[3]}
       </p>
