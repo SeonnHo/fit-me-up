@@ -176,7 +176,7 @@ export default function SignInPage() {
                   className="mr-2"
                   onClick={handleKakaoSignIn}
                 />
-                카카오 로그인
+                카카오 계정으로 로그인
               </Button>
 
               <Button
@@ -191,7 +191,7 @@ export default function SignInPage() {
                   height={18}
                   className="mr-2 h-[40px] cursor-pointer object-contain"
                 />
-                네이버 로그인
+                네이버 계정으로 로그인
               </Button>
 
               <Button
@@ -206,7 +206,7 @@ export default function SignInPage() {
                   height={18}
                   className="mr-2 h-[40px] cursor-pointer object-contain"
                 />
-                Google 계정으로 로그인
+                구글 계정으로 로그인
               </Button>
             </div>
           </CardContent>
