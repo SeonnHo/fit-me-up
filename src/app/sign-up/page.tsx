@@ -92,7 +92,13 @@ export default function SignUpPage() {
 
   const startTimer = () => {
     const timer = setInterval(() => {
-      setTimeLeft((prevTimeLeft) => prevTimeLeft - 1);
+      setTimeLeft((prevTimeLeft) => {
+        if (prevTimeLeft > 0) {
+          return prevTimeLeft - 1;
+        } else {
+          return prevTimeLeft;
+        }
+      });
     }, 1000);
 
     return timer;
@@ -251,7 +257,6 @@ export default function SignUpPage() {
   };
 
   const verifyEmail = (authNumber: string) => {
-    // TODO: 전송한 인증 번호와 사용자가 입력한 인증 번호가 같은 지 확인하는 코드 작성
     if (authNumberRef.current === authNumber) {
       setSignUpDisabledOption((prev) => ({ ...prev, email: false }));
       setIsShowVerifyEmailModal(false);
