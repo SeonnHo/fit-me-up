@@ -15,12 +15,12 @@ export default function Home() {
       href: '/post/fit',
     },
     {
-      title: '남성 게시판',
+      title: '남성 커뮤니티',
       subtitle: '오늘의 남성패션 이야기',
       href: '/post/man',
     },
     {
-      title: '여성 게시판',
+      title: '여성 커뮤니티',
       subtitle: '오늘의 여성패션 이야기',
       href: '/post/woman',
     },
