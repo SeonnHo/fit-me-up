@@ -12,17 +12,17 @@ export default function Home() {
     {
       title: '오늘의 핏',
       subtitle: '나의 핏을 자랑해요',
-      href: '/post/fit',
+      href: '/community/fit',
     },
     {
       title: '남성 커뮤니티',
       subtitle: '오늘의 남성패션 이야기',
-      href: '/post/man',
+      href: '/community/man',
     },
     {
       title: '여성 커뮤니티',
       subtitle: '오늘의 여성패션 이야기',
-      href: '/post/woman',
+      href: '/community/woman',
     },
   ];
 
