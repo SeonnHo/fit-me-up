@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Nanum_Gothic, Roboto } from 'next/font/google';
 import './globals.css';
-import Header from '@/components/header';
+import Header from '@/components/header/header';
 import AuthProvider from '@/context/auth-context';
 import { Toaster } from '@/components/ui/toaster';
 
