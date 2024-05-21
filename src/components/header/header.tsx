@@ -14,7 +14,6 @@ import {
 } from '../ui/sheet';
 import { MdMenu } from 'react-icons/md';
 import { useEffect, useState } from 'react';
-import { FaArrowRight } from 'react-icons/fa';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   NavigationMenu,
@@ -34,6 +33,7 @@ export default function Header() {
   const [isOpenSheet, setIsOpenSheet] = useState(false);
   const router = useRouter();
   const path = usePathname();
+  const [isExtended, setIsExtended] = useState(false);
   const [extensionInfoList, setExtensionInfoList] = useState([
     { category: '/community/man', extended: false },
     { category: '/community/woman', extended: false },
@@ -86,27 +86,122 @@ export default function Header() {
                   </SheetHeader>
                 )}
                 <nav className="mt-4">
-                  <ul className="flex flex-col space-y-2">
-                    <li
-                      className="px-4 py-3 border-y hover:bg-slate-100 flex justify-between items-center cursor-pointer"
-                      onClick={() => {
-                        router.push('/community/fit');
-                        setIsOpenSheet(false);
-                      }}
-                    >
-                      <div className="font-bold">오늘의 핏</div>
-                      <FaArrowRight />
+                  <ul className="flex flex-col">
+                    <li className="px-4 py-3">
+                      <Link
+                        href={'/community/fit'}
+                        className="font-bold block"
+                        onClick={() => setIsOpenSheet(false)}
+                      >
+                        오늘의 핏
+                      </Link>
                     </li>
 
-                    <li
-                      className="px-4 py-3 border-y hover:bg-slate-100 flex justify-between items-center cursor-pointer"
-                      onClick={() => {
-                        router.push('/community');
-                        setIsOpenSheet(false);
-                      }}
-                    >
-                      <div className="font-bold">커뮤니티</div>
-                      <FaArrowRight />
+                    <li className="relative px-4 py-3 flex flex-col">
+                      <Link
+                        href={'/community'}
+                        className="font-bold"
+                        onClick={() => setIsOpenSheet(false)}
+                      >
+                        커뮤니티
+                      </Link>
+                      <div
+                        className="absolute right-4 z-10 hover:bg-accent rounded-md cursor-pointer"
+                        onClick={() => setIsExtended((prev) => !prev)}
+                      >
+                        <LuChevronDown
+                          className={`size-6 transition duration-200 ${
+                            isExtended ? 'rotate-180' : ''
+                          }`}
+                        />
+                      </div>
+                      {isExtended && (
+                        <ul className="space-y-2">
+                          {categoryList.map((category) => (
+                            <li
+                              key={category.name}
+                              className={`first:mt-2 px-2 relative flex flex-col rounded-md ${extensionInfoList
+                                .map((info) =>
+                                  category.path === info.category &&
+                                  info.extended
+                                    ? 'bg-accent'
+                                    : ''
+                                )
+                                .join('')}`}
+                            >
+                              <Link
+                                href={category.path}
+                                className={`block text-sm py-2 ${
+                                  category.path === path ? 'font-bold' : ''
+                                }`}
+                                onClick={() => setIsOpenSheet(false)}
+                              >
+                                {category.name}
+                              </Link>
+                              {extensionInfoList.map((info) => {
+                                if (info.category === category.path) {
+                                  return (
+                                    <>
+                                      <div
+                                        key={info.category}
+                                        className="absolute top-2 right-2 z-10 hover:bg-accent rounded-md cursor-pointer"
+                                        onClick={() =>
+                                          setExtensionInfoList((prev) =>
+                                            prev.map((extensionInfo) => {
+                                              if (
+                                                extensionInfo.category ===
+                                                info.category
+                                              ) {
+                                                return {
+                                                  ...extensionInfo,
+                                                  extended:
+                                                    !extensionInfo.extended,
+                                                };
+                                              } else {
+                                                return extensionInfo;
+                                              }
+                                            })
+                                          )
+                                        }
+                                      >
+                                        <LuChevronDown
+                                          className={`size-5 transition duration-200 ${
+                                            info.extended ? 'rotate-180' : ''
+                                          }`}
+                                        />
+                                      </div>
+                                      {info.extended && (
+                                        <ul className="px-2">
+                                          {bulletinBoardList.map((board) => (
+                                            <li key={board.name}>
+                                              <Link
+                                                href={
+                                                  category.path + board.path
+                                                }
+                                                className={`block text-sm py-2 ${
+                                                  info.category + board.path ===
+                                                  path
+                                                    ? 'font-bold'
+                                                    : ''
+                                                }`}
+                                                onClick={() =>
+                                                  setIsOpenSheet(false)
+                                                }
+                                              >
+                                                {board.name}
+                                              </Link>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      )}
+                                    </>
+                                  );
+                                }
+                              })}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </li>
                   </ul>
                 </nav>
@@ -173,7 +268,7 @@ export default function Header() {
                       커뮤니티
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="w-[200px] px-4 py-2">
+                      <ul className="w-[200px] px-4 py-2 space-y-2">
                         {categoryList.map((category) => (
                           <li
                             key={category.name}
@@ -263,9 +358,14 @@ export default function Header() {
                                             >
                                               <Link
                                                 href={
-                                                  category.path + board.path
+                                                  info.category + board.path
                                                 }
-                                                className={`text-sm flex justify-center items-center hover:bg-accent rounded-md py-2 flex-grow`}
+                                                className={`text-sm flex justify-center items-center hover:bg-accent rounded-md py-2 flex-grow ${
+                                                  info.category + board.path ===
+                                                  path
+                                                    ? 'font-bold'
+                                                    : ''
+                                                }`}
                                               >
                                                 {board.name}
                                               </Link>
