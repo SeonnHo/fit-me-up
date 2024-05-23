@@ -71,11 +71,21 @@ const config = {
           '0%,70%,100%': { opacity: '1' },
           '20%,50%': { opacity: '0' },
         },
+        'heart-race': {
+          '0%,60%,100%': { transform: 'scale(1)' },
+          '40%,80%': { transform: 'scale(1.1)' },
+        },
+        'slide-left': {
+          from: { transform: 'translateX(100%)' },
+          to: { transform: 'translateX(0%)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'caret-blink': 'caret-blink 1.25s ease-out infinite',
+        'heart-race': 'heart-race 0.75s ease-out',
+        'slide-left': 'slide-left 0.3s ease-out',
       },
       backgroundImage: {
         'default-profile': "url('/profile_icon.png')",
@@ -97,7 +107,7 @@ const config = {
       roboto: ['var(--Roboto)'],
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), require('tailwind-scrollbar-hide')],
 } satisfies Config;
 
 export default config;
