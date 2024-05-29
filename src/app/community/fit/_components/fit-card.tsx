@@ -15,10 +15,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Divide } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { BiCommentDetail } from 'react-icons/bi';
 import { FaHeart, FaRegComment, FaRegHeart } from 'react-icons/fa';
 import { MdClose } from 'react-icons/md';
 
@@ -70,17 +68,23 @@ export default function FitCard({
               <p className="text-sm">{likeCount}</p>
             </div>
             <div className="flex items-center space-x-1">
-              <BiCommentDetail className="size-5" />
+              <FaRegComment className="size-5" />
               <p className="text-sm">{commentCount}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <AlertDialog open={isOpenDetails} onOpenChange={setIsOpenDetails}>
+      <AlertDialog
+        open={isOpenDetails}
+        onOpenChange={(open) => {
+          setIsOpenDetails(open);
+          setIsShowComment(open);
+        }}
+      >
         <AlertDialogContent
           onEscapeKeyDown={(e) => e.preventDefault()}
-          className="max-md:h-full max-md:flex-grow overflow-hidden"
+          className="overflow-hidden"
         >
           <AlertDialogCancel className="absolute top-2 right-2 border-none p-0 m-0 h-auto w-auto bg-transparent hover:bg-transparent">
             <MdClose className="size-6 text-zinc-400 hover:text-zinc-700" />
@@ -92,7 +96,7 @@ export default function FitCard({
           </AlertDialogHeader>
           {isShowComment ? (
             <div
-              className="bg-red-500 h-[600px] animate-slide-left"
+              className="bg-red-500 h-[500px] md:h-[600px] animate-slide-left"
               onClick={() => setIsShowComment(false)}
             ></div>
           ) : (
@@ -104,7 +108,7 @@ export default function FitCard({
                 height={400}
                 className="w-full"
               />
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <p className="text-sm font-bold">
                   좋아요 {likeCount}개 • 댓글 {commentCount}개
                 </p>
