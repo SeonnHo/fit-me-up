@@ -52,8 +52,8 @@ export default function FitCard({
   const { mentionedUser, setMentionedUser } = useCommentStore();
   const { data: session } = useSession();
 
-  const handleAddComment = () => {
-    if (!comment || !session) {
+  const handleAddComment = async () => {
+    if (!comment) {
       setComment('');
       toast({
         title: '로그인 필요',
@@ -61,6 +61,11 @@ export default function FitCard({
       });
       return;
     }
+    // await fetch('/api/comment', {
+    //   method: 'POST',
+    //   headers: {'Content-Type': 'application/json'},
+    //   body: {}
+    // })
   };
 
   return (
@@ -204,6 +209,7 @@ export default function FitCard({
                     placeholder="댓글 추가..."
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
+                    disabled={!session}
                   />
                   <Button
                     variant="outline"
