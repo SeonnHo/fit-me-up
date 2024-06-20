@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -19,7 +20,7 @@ const formSchema = z.object({
   content: z.string().min(1, { message: '내용은 필수 입력 요소입니다.' }),
 });
 
-export default function TextFormField() {
+export default function BoardForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -27,8 +28,13 @@ export default function TextFormField() {
       content: '',
     },
   });
+
+  const handleSubmit = async () => {
+    // TODO: 게시물 생성 요청 로직 작성
+  };
+
   return (
-    <section>
+    <section className="max-sm:mb-[100px]">
       <Form {...form}>
         <form className="space-y-4 max-sm:px-4">
           <FormField
@@ -62,6 +68,14 @@ export default function TextFormField() {
               </FormItem>
             )}
           />
+          <div className="max-sm:fixed max-sm:left-0 max-sm:bottom-0 max-sm:w-full max-sm:px-4 max-sm:pb-2 flex space-x-2">
+            <Button type="button" variant="outline" className="w-full">
+              취소
+            </Button>
+            <Button type="submit" className="w-full">
+              게시
+            </Button>
+          </div>
         </form>
       </Form>
     </section>
