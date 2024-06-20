@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/components/ui/use-toast';
+import { useFormStore } from '@/store/use-form-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -20,7 +22,7 @@ const formSchema = z.object({
   content: z.string().min(1, { message: '내용은 필수 입력 요소입니다.' }),
 });
 
-export default function BoardForm() {
+export default function BoardCreationForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -29,14 +31,27 @@ export default function BoardForm() {
     },
   });
 
-  const handleSubmit = async () => {
+  const { category } = useFormStore();
+
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!category) {
+      toast({
+        title: '게시판 선택',
+        description: '게시판 선택은 필수입니다.',
+      });
+      return;
+    }
+    console.log(values);
     // TODO: 게시물 생성 요청 로직 작성
   };
 
   return (
-    <section className="max-sm:mb-[100px]">
+    <section className="mb-4 max-sm:mb-[100px]">
       <Form {...form}>
-        <form className="space-y-4 max-sm:px-4">
+        <form
+          className="space-y-4 max-sm:px-4"
+          onSubmit={form.handleSubmit(handleSubmit)}
+        >
           <FormField
             control={form.control}
             name="title"
