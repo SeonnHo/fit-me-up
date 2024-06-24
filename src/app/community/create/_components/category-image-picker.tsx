@@ -87,11 +87,6 @@ export default function CategoryImagePicker() {
               </SelectGroup>
             </SelectContent>
           </Select>
-          {category === 'todayFit' && (
-            <p className="text-xs text-zinc-400 pl-2">
-              오늘의 핏 선택 시 사진 업로드는 1장만 가능합니다.
-            </p>
-          )}
         </div>
         <label
           htmlFor="addimage"
@@ -132,9 +127,15 @@ export default function CategoryImagePicker() {
           </div>
         </section>
       )}
-      <p className="text-xs text-zinc-400 max-sm:pl-4 pb-2">
-        이미지는 최대 5장까지 첨부 가능합니다.
-      </p>
+      {category === 'todayFit' ? (
+        <p className="text-xs text-zinc-400 max-sm:pl-4 pb-2">
+          &apos;오늘의 핏&apos; 게시판 선택 시 사진 업로드는 1장만 가능합니다.
+        </p>
+      ) : (
+        <p className="text-xs text-zinc-400 max-sm:pl-4 pb-2">
+          이미지는 최대 5장까지 첨부 가능합니다.
+        </p>
+      )}
     </section>
   );
 }
