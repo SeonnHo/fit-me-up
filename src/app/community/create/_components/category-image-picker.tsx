@@ -10,16 +10,23 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Image from 'next/image';
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useRef } from 'react';
 
 import { LuImagePlus, LuImage } from 'react-icons/lu';
 import { toast } from '@/components/ui/use-toast';
 import { useFormStore } from '@/store/use-form-store';
 
 export default function CategoryImagePicker() {
-  const { category, setCategory } = useFormStore();
-  const [files, setFiles] = useState<File[]>();
-  const [filePathList, setFilePathList] = useState<string[]>([]);
+  const {
+    category,
+    filePathList,
+    setCategory,
+    setFiles,
+    removeFile,
+    addFilePath,
+    removeFilePath,
+    resetFilePath,
+  } = useFormStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleCategoryChange = (value: string) => {
@@ -36,7 +43,8 @@ export default function CategoryImagePicker() {
         return;
       }
 
-      setFilePathList([]);
+      resetFilePath();
+      setFiles([]);
 
       const fileList: File[] = [];
 
@@ -45,10 +53,7 @@ export default function CategoryImagePicker() {
         const reader = new FileReader();
 
         reader.onload = (e: ProgressEvent<FileReader>) => {
-          setFilePathList((pathList) => [
-            ...pathList,
-            e.target?.result as string,
-          ]);
+          addFilePath(e);
         };
         reader.readAsDataURL(file);
       }
@@ -58,7 +63,8 @@ export default function CategoryImagePicker() {
   };
 
   const handleDeleteFile = (index: number) => {
-    setFilePathList((pathList) => pathList.filter((_, idx) => idx !== index));
+    removeFilePath(index);
+    removeFile(index);
   };
 
   return (
