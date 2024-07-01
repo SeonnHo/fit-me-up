@@ -13,7 +13,7 @@ import {
   SheetTrigger,
 } from '../ui/sheet';
 import { MdMenu } from 'react-icons/md';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   NavigationMenu,
@@ -25,6 +25,18 @@ import {
   navigationMenuTriggerStyle,
 } from '../ui/navigation-menu';
 import { LuChevronDown } from 'react-icons/lu';
+
+const categoryList = [
+  { id: 1, name: '전체 글', path: '/community' },
+  { id: 2, name: '남성 커뮤니티', path: '/community/man' },
+  { id: 3, name: '여성 커뮤니티', path: '/community/woman' },
+];
+
+const bulletinBoardList = [
+  { id: 1, name: '자유게시판', path: '/board/free' },
+  { id: 2, name: '질문게시판', path: '/board/question' },
+  { id: 3, name: '정보게시판', path: '/board/info' },
+];
 
 export default function Header() {
   const { data: session } = useSession();
@@ -39,23 +51,11 @@ export default function Header() {
     { category: '/community/woman', extended: false },
   ]);
 
-  const categoryList = [
-    { name: '전체 글', path: '/community' },
-    { name: '남성 커뮤니티', path: '/community/man' },
-    { name: '여성 커뮤니티', path: '/community/woman' },
-  ];
-
-  const bulletinBoardList = [
-    { name: '자유게시판', path: '/board/free' },
-    { name: '질문게시판', path: '/board/question' },
-    { name: '정보게시판', path: '/board/info' },
-  ];
-
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted)
+  if (!mounted) {
     return (
       <header className="w-full h-[80px] max-md:h-[60px] fixed top-0 left-0 z-50 bg-white">
         <div className="h-full lg:max-w-screen-lg flex max-md:justify-center items-center mx-auto">
@@ -63,6 +63,7 @@ export default function Header() {
         </div>
       </header>
     );
+  }
 
   return (
     <header className="w-full h-[80px] max-md:h-[60px] fixed top-0 left-0 z-50 bg-white">
@@ -119,7 +120,7 @@ export default function Header() {
                         <ul className="space-y-2">
                           {categoryList.map((category) => (
                             <li
-                              key={category.name}
+                              key={category.id}
                               className={`first:mt-2 px-2 relative flex flex-col rounded-md ${extensionInfoList
                                 .map((info) =>
                                   category.path === info.category &&
@@ -141,9 +142,8 @@ export default function Header() {
                               {extensionInfoList.map((info) => {
                                 if (info.category === category.path) {
                                   return (
-                                    <>
+                                    <React.Fragment key={info.category}>
                                       <div
-                                        key={info.category}
                                         className="absolute top-2 right-2 z-10 hover:bg-accent rounded-md cursor-pointer"
                                         onClick={() =>
                                           setExtensionInfoList((prev) =>
@@ -173,7 +173,7 @@ export default function Header() {
                                       {info.extended && (
                                         <ul className="px-2">
                                           {bulletinBoardList.map((board) => (
-                                            <li key={board.name}>
+                                            <li key={board.id}>
                                               <Link
                                                 href={
                                                   category.path + board.path
@@ -194,7 +194,7 @@ export default function Header() {
                                           ))}
                                         </ul>
                                       )}
-                                    </>
+                                    </React.Fragment>
                                   );
                                 }
                               })}
@@ -271,7 +271,7 @@ export default function Header() {
                       <ul className="w-[200px] px-4 py-2 space-y-2">
                         {categoryList.map((category) => (
                           <li
-                            key={category.name}
+                            key={category.id}
                             className={extensionInfoList
                               .map((info) => {
                                 if (
@@ -347,9 +347,9 @@ export default function Header() {
                                     info.extended
                                   ) {
                                     return (
-                                      <ul key={info.category} className={``}>
+                                      <ul key={info.category}>
                                         {bulletinBoardList.map((board) => (
-                                          <li key={board.name}>
+                                          <li key={board.id}>
                                             <NavigationMenuLink
                                               asChild
                                               onSelect={(e) =>
