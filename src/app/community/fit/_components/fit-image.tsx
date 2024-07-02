@@ -17,9 +17,9 @@ export default function FitImage({ image, fitInfo }: Props) {
   const [isShowInfo, setIsShowInfo] = useState(false);
 
   return (
-    <div className="relative">
+    <div className="relative w-full h-[500px]">
       {isShowInfo ? (
-        <div className="flex flex-col h-[555px] max-sm:h-[408px]">
+        <div className="flex flex-col h-full">
           <div className="flex justify-end">
             <Button
               variant="outline"
@@ -59,9 +59,9 @@ export default function FitImage({ image, fitInfo }: Props) {
           <Image
             src={image}
             alt="핏이미지"
-            width={300}
-            height={400}
-            className="w-full"
+            fill
+            priority
+            className="w-full h-full object-cover"
           />
           <Button
             variant="outline"
