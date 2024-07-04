@@ -8,8 +8,10 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
   SheetFooter,
   SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from '../ui/sheet';
 import { MdMenu } from 'react-icons/md';
@@ -78,14 +80,17 @@ export default function Header() {
               className="flex flex-col justify-between"
             >
               <div className="flex flex-col">
-                {session && session.user && (
-                  <SheetHeader className="items-center mt-4">
-                    <div className="size-16 bg-default-profile bg-center bg-no-repeat bg-contain" />
-                    <div className="text-lg font-bold">
-                      {session.user.nickname}
-                    </div>
-                  </SheetHeader>
-                )}
+                <SheetHeader className="items-center mt-4">
+                  <div className="size-16 bg-default-profile bg-center bg-no-repeat bg-contain" />
+                  <SheetTitle className="text-base font-bold">
+                    {session && session.user
+                      ? session.user.nickname
+                      : '로그인 필요'}
+                  </SheetTitle>
+                  <SheetDescription>
+                    {session && session.user ? '' : '로그인 후 프로필 표시'}
+                  </SheetDescription>
+                </SheetHeader>
                 <nav className="mt-4">
                   <ul className="flex flex-col">
                     <li className="px-4 py-3">
