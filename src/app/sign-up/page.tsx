@@ -1,6 +1,12 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -35,6 +41,7 @@ import {
 } from '@/components/ui/input-otp';
 import { MdClose } from 'react-icons/md';
 import { FaCheck } from 'react-icons/fa';
+import Link from 'next/link';
 
 const passwordRegex =
   /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$&*?!%])[A-Za-z\d!@$%&*?]{8,15}$/;
@@ -309,6 +316,7 @@ export default function SignUpPage() {
                           <Input
                             type="email"
                             placeholder="example@example.com"
+                            autoComplete="email"
                             {...field}
                           />
                         </FormControl>
@@ -456,6 +464,7 @@ export default function SignUpPage() {
                           <Input
                             type="text"
                             placeholder="특수문자, 초성, 공백 제외 2~10자"
+                            autoComplete="username"
                             {...field}
                           />
                         </FormControl>
@@ -494,6 +503,15 @@ export default function SignUpPage() {
                 </Button>
               </form>
             </Form>
+            <CardDescription className="text-black text-right mt-2">
+              이미 회원이신가요?
+              <Link
+                href="/api/auth/signin"
+                className="ml-2 text-blue-700 p-0 font-bold h-auto text-sm"
+              >
+                로그인
+              </Link>
+            </CardDescription>
           </CardContent>
         </Card>
       </main>
