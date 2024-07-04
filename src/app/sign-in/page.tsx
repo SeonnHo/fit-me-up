@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import kakaoLogo from '/public/kakao_logo.svg';
 import naverLogo from '/public/naver_logo.svg';
 import googleLogo from '/public/google_logo.svg';
@@ -46,6 +46,7 @@ export default function SignInPage() {
   const { data: session } = useSession();
   const [isLogined, setIsLogined] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -89,8 +90,10 @@ export default function SignInPage() {
     if (session) {
       setIsLogined(true);
     }
-    console.log(session);
-  }, [session]);
+    if (!searchParams.get('callbackUrl')) {
+      router.replace('/api/auth/signin');
+    }
+  }, [session, searchParams, router]);
 
   return (
     <>
@@ -189,7 +192,7 @@ export default function SignInPage() {
                   alt="네이버 로고 이미지"
                   width={18}
                   height={18}
-                  className="mr-2 h-[40px] cursor-pointer object-contain"
+                  className="mr-2"
                 />
                 네이버 계정으로 로그인
               </Button>
@@ -204,7 +207,7 @@ export default function SignInPage() {
                   alt="구글 로고 이미지"
                   width={18}
                   height={18}
-                  className="mr-2 h-[40px] cursor-pointer object-contain"
+                  className="mr-2"
                 />
                 구글 계정으로 로그인
               </Button>
