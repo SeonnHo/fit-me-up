@@ -33,6 +33,7 @@ export default function Home() {
           <Image
             src={mirrorImage}
             alt="거울이미지"
+            priority
             className="opacity-40 sm:w-[500px] mx-auto max-sm:w-[300px]"
           />
           <h2 className="absolute top-1/2 left-1/2 font-bold text-center text-3xl max-sm:text-lg max-sm:w-full leading-normal -translate-x-1/2 -translate-y-1/2 [text-shadow:_0_5px_10px_gray]">
