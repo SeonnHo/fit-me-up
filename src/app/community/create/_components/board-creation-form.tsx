@@ -17,25 +17,31 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { BeatLoader } from 'react-spinners';
 import LoginAlertDialog from '@/components/login-alert-dialog/login-alert-dialog';
+import { MdOutlineInfo } from 'react-icons/md';
+import { LuMinus, LuPlus } from 'react-icons/lu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
-const formSchema = z.object({
+const baseSchema = z.object({
   title: z.string().min(1, { message: '제목은 필수 입력 요소입니다.' }),
   content: z.string().min(1, { message: '내용은 필수 입력 요소입니다.' }),
+  fitInfo: z.array(
+    z.object({
+      section: z.string(),
+      info: z.string(),
+    })
+  ),
 });
 
 export default function BoardCreationForm() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      content: '',
-    },
-  });
-
   const { category, files, setCategory, setFiles, resetFilePath } =
     useFormStore();
   const { data: session } = useSession();
@@ -43,9 +49,31 @@ export default function BoardCreationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isNotLogined, setIsNotLogined] = useState(false);
 
+  const formSchema =
+    category === 'todayFit'
+      ? baseSchema.extend({ title: z.string().optional() })
+      : baseSchema;
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      content: '',
+      fitInfo: [{ section: '', info: '' }],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'fitInfo',
+  });
+
   useEffect(() => {
+    console.log(session);
     if (!session) {
       setIsNotLogined(true);
+    } else {
+      setIsNotLogined(false);
     }
   }, [session]);
 
@@ -57,6 +85,13 @@ export default function BoardCreationForm() {
       });
       return;
     }
+    if (category === 'todayFit' && files.length <= 0) {
+      toast({
+        title: '이미지 첨부 필수',
+        description: '오늘의 핏은 이미지가 필수 요소입니다.',
+      });
+      return;
+    }
     setIsSubmitting(true);
     const sendData = new FormData();
 
@@ -64,13 +99,20 @@ export default function BoardCreationForm() {
       sendData.append('image', file);
     }
 
-    const body = {
-      category,
-      title: values.title,
-      content: values.content,
-      user: session?.user.nickname,
-      createAt: new Date(),
-    };
+    const body =
+      category !== 'todayFit'
+        ? {
+            category,
+            title: values.title,
+            content: values.content,
+            user: session?.user.id,
+          }
+        : {
+            category,
+            content: values.content,
+            user: session?.user.id,
+            fitInfo: values.fitInfo,
+          };
 
     sendData.append(
       'body',
@@ -113,6 +155,16 @@ export default function BoardCreationForm() {
       });
   };
 
+  const handlePlusClick = () => {
+    append({ section: '', info: '' });
+  };
+
+  const handleMinusClick = () => {
+    if (fields.length - 1 > 0) {
+      remove(fields.length - 1);
+    }
+  };
+
   return (
     <>
       <section className="mb-4 max-sm:mb-[100px]">
@@ -121,19 +173,100 @@ export default function BoardCreationForm() {
             className="space-y-4 max-sm:px-4"
             onSubmit={form.handleSubmit(handleSubmit)}
           >
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>제목</FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="제목..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {category !== 'todayFit' ? (
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>제목</FormLabel>
+                    <FormControl>
+                      <Input type="text" placeholder="제목..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : (
+              <div className="flex flex-col space-y-2 mt-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-2">
+                    <p className="text-sm">핏 정보</p>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <MdOutlineInfo className="size-5" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs">
+                            핏 정보는 필수 입력 요소가 아닙니다.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="p-2 h-auto"
+                      onClick={handlePlusClick}
+                    >
+                      <LuPlus className="size-5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="h-auto p-2"
+                      onClick={handleMinusClick}
+                    >
+                      <LuMinus className="size-5" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex space-x-2">
+                  <table className="w-full border">
+                    <tbody>
+                      {fields.map((field, index) => (
+                        <tr key={field.id}>
+                          <FormField
+                            control={form.control}
+                            name={`fitInfo.${index}.section`}
+                            render={({ field }) => (
+                              <td className="border-r border-b p-2 w-1/3">
+                                <FormControl>
+                                  <Input
+                                    type="text"
+                                    placeholder="패션 부위..."
+                                    {...field}
+                                  />
+                                </FormControl>
+                              </td>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`fitInfo.${index}.info`}
+                            render={({ field }) => (
+                              <td className="border-b p-2">
+                                <FormControl>
+                                  <Input
+                                    type="text"
+                                    placeholder="정보..."
+                                    {...field}
+                                  />
+                                </FormControl>
+                              </td>
+                            )}
+                          />
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
             <FormField
               control={form.control}
@@ -156,7 +289,11 @@ export default function BoardCreationForm() {
               <Button type="button" variant="outline" className="w-full">
                 취소
               </Button>
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || isNotLogined}
+              >
                 {isSubmitting ? <BeatLoader color="white" size={10} /> : '게시'}
               </Button>
             </div>
