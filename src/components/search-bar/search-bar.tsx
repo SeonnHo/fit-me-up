@@ -6,6 +6,7 @@ import { FaRegEdit } from 'react-icons/fa';
 import { Button } from '../ui/button';
 import { MdOutlineClose } from 'react-icons/md';
 import { ChangeEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   placeholder: string;
@@ -13,6 +14,7 @@ interface Props {
 
 export default function SearchBar({ placeholder }: Props) {
   const [inputValue, setInputValue] = useState('');
+  const router = useRouter();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     console.log(e.target.value);
@@ -32,7 +34,7 @@ export default function SearchBar({ placeholder }: Props) {
           placeholder={placeholder}
           value={inputValue}
           onChange={handleChange}
-          className="w-full outline-none [&::-webkit-search-decoration]:hidden [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-results-button]:hidden [&::-webkit-search-results-decoration]:hidden text-sm"
+          className="w-full outline-none [&::-webkit-search-decoration]:hidden [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-results-button]:hidden [&::-webkit-search-results-decoration]:hidden text-sm bg-white"
         />
 
         {inputValue && (
@@ -50,7 +52,12 @@ export default function SearchBar({ placeholder }: Props) {
           <BsArrowReturnLeft className="size-5" />
         </Button>
       </div>
-      <Button className="w-[40px] p-1 shrink-0" type="button" variant="outline">
+      <Button
+        className="w-[40px] p-1 shrink-0"
+        type="button"
+        variant="outline"
+        onClick={() => router.push('/community/create')}
+      >
         <FaRegEdit className="size-5" />
       </Button>
     </div>
