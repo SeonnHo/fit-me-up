@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/header/header';
 import AuthProvider from '@/context/auth-context';
 import { Toaster } from '@/components/ui/toaster';
+import ReactQueryProviders from '@/hooks/use-react-query';
 
 const nanumGothic = Nanum_Gothic({
   weight: ['400', '700', '800'],
@@ -34,11 +35,13 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${nanumGothic.className} ${roboto.variable}`}>
-        <AuthProvider>
-          <Header />
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <ReactQueryProviders>
+          <AuthProvider>
+            <Header />
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </ReactQueryProviders>
       </body>
     </html>
   );
