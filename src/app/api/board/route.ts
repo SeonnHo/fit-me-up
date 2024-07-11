@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { InsertOneResult } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
+import { User } from '@/interfaces/user';
+import { Board } from '@/interfaces/board';
 
 interface RequsetBody {
   category: string;
@@ -14,9 +16,53 @@ interface RequsetBody {
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
 
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const category = searchParams.get('category');
+
+  const database = connectDB.db('fit_me_up');
+  const boardsCollection = database.collection<Board>('boards');
+
+  try {
+    if (!category) {
+      console.log('error');
+      throw Error('"category" does not have a value.');
+    }
+
+    const board = await boardsCollection
+      .find<Board>({ category })
+      .sort({ _id: -1 })
+      .toArray();
+
+    const addNicknameBoards = await Promise.all(
+      board.map(async (board) => {
+        const usersCollection = database.collection<User>('users');
+
+        const user = await usersCollection.findOne({ _id: board.user });
+
+        if (!user) {
+          throw Error('User not found.');
+        }
+
+        return {
+          ...board,
+          user: { _id: user._id, nickname: user.nickname },
+        };
+      })
+    );
+
+    console.log(board);
+    console.log(addNicknameBoards);
+
+    return NextResponse.json(addNicknameBoards);
+  } catch (error) {
+    return NextResponse.json(error);
+  }
+}
+
 export async function POST(request: NextRequest) {
   const database = connectDB.db('fit_me_up');
-  const boardCollection = database.collection('board');
+  const boardCollection = database.collection('boards');
 
   const formData = await request.formData();
 
