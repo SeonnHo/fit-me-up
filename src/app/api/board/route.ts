@@ -68,33 +68,37 @@ export async function POST(request: NextRequest) {
 
   try {
     const imageList: string[] = [];
-
-    if (formData.has('image')) {
-      for (const file of formData.getAll('image')) {
-        const uuid = uuidv4();
-        if (file instanceof File) {
-          const fileExtension = `.${file.name.split('.').pop()}`;
-          const arrayBuffer = await file.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
-          const params = {
-            Bucket: process.env.AWS_BUCKET,
-            Body: buffer,
-            Key: `board/${uuid + fileExtension}`,
-            ContentType: file.type,
-          };
-          const command = new PutObjectCommand(params);
-          await s3Client.send(command);
-          imageList.push(uuid + fileExtension);
-        }
-      }
-    }
-
     const bodyEntry = formData.get('body');
     let result: InsertOneResult | undefined;
 
     if (bodyEntry && bodyEntry instanceof File) {
       const text = await bodyEntry.text();
       const body: RequsetBody = JSON.parse(text);
+
+      const category = body.category
+        .replace(/([a-z])([A-Z])/g, '$1-$2')
+        .toLocaleLowerCase();
+
+      if (formData.has('image')) {
+        for (const file of formData.getAll('image')) {
+          const uuid = uuidv4();
+          if (file instanceof File) {
+            const fileExtension = `.${file.name.split('.').pop()}`;
+            const arrayBuffer = await file.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            const params = {
+              Bucket: process.env.AWS_BUCKET,
+              Body: buffer,
+              Key: `board/${category}/${uuid + fileExtension}`,
+              ContentType: file.type,
+            };
+            const command = new PutObjectCommand(params);
+            await s3Client.send(command);
+            imageList.push(uuid + fileExtension);
+          }
+        }
+      }
+
       result = await boardCollection.insertOne({
         ...body,
         createAt: new Date(),
