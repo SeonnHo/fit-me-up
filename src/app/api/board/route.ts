@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   try {
     if (!category) {
       console.log('error');
-      throw Error('"category" does not have a value.');
+      throw new Error('"category" does not have a value.');
     }
 
     const board = await boardsCollection
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
         const user = await usersCollection.findOne({ _id: board.user });
 
         if (!user) {
-          throw Error('User not found.');
+          throw new Error('User not found.');
         }
 
         return {
@@ -50,9 +50,6 @@ export async function GET(request: NextRequest) {
         };
       })
     );
-
-    console.log(board);
-    console.log(addNicknameBoards);
 
     return NextResponse.json(addNicknameBoards);
   } catch (error) {
