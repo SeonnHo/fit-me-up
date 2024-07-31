@@ -10,6 +10,11 @@ export interface Board {
     section: string;
     info: string;
   }[];
+  bodyInfo: {
+    gender: string;
+    height: number | undefined;
+    weight: number | undefined;
+  };
   user: string | ObjectId;
   likeCount: number;
   commentCount: number;
