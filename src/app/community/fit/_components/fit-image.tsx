@@ -8,12 +8,21 @@ import { MdOutlineInfo, MdOutlineImage } from 'react-icons/md';
 interface Props {
   image: string;
   fitInfo?: {
-    category: string;
-    value: string;
+    section: string;
+    info: string;
   }[];
+  bodyInfo?: {
+    gender: string;
+    height: number | undefined;
+    weight: number | undefined;
+  };
 }
 
-export default function FitImage({ image, fitInfo }: Props) {
+export default function FitImage({
+  image,
+  fitInfo,
+  bodyInfo = { gender: '', height: 0, weight: 0 },
+}: Props) {
   const [isShowInfo, setIsShowInfo] = useState(false);
 
   return (
@@ -32,15 +41,33 @@ export default function FitImage({ image, fitInfo }: Props) {
             </Button>
           </div>
           {fitInfo ? (
-            <div className="p-2">
+            <div className="p-2 flex flex-col space-y-2">
+              <table className="w-full">
+                <tbody>
+                  <tr className="border text-center">
+                    <th className="border-r text-sm bg-zinc-100 w-1/3 p-2">
+                      성별
+                    </th>
+                    <th className="border-r text-sm bg-zinc-100 w-1/3 p-2">
+                      키
+                    </th>
+                    <th className="text-sm bg-zinc-100 w-1/3 p-2">몸무게</th>
+                  </tr>
+                  <tr className="border-x border-b text-center">
+                    <td className="border-r text-sm p-2">{bodyInfo.gender}</td>
+                    <td className="border-r text-sm p-2">{bodyInfo.height}</td>
+                    <td className="text-sm p-2">{bodyInfo.weight}</td>
+                  </tr>
+                </tbody>
+              </table>
               <table className="w-full">
                 <tbody>
                   {fitInfo.map((info) => (
-                    <tr key={info.category} className="border text-center">
-                      <td className="border-r w-1/5 font-bold bg-zinc-100">
-                        {info.category}
+                    <tr key={info.section} className="border text-center">
+                      <td className="border-r w-1/5 font-bold bg-zinc-100 p-2 text-sm">
+                        {info.section}
                       </td>
-                      <td>{info.value}</td>
+                      <td className="p-2 text-sm line-clamp-1">{info.info}</td>
                     </tr>
                   ))}
                 </tbody>
