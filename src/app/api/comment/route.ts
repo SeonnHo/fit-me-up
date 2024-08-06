@@ -1,30 +1,40 @@
 import { ObjectId } from 'mongodb';
 import { connectDB } from '@/lib/database';
 import { NextRequest, NextResponse } from 'next/server';
-
-interface Comment {
-  _id?: ObjectId;
-  boardId: string;
-  userId: string;
-  createAt?: Date;
-  content: string;
-  replies?: Reply[];
-}
-
-interface Reply extends Comment {
-  mentionUser: string;
-}
+import { Comment } from '@/interfaces/comment';
+import { getNextSequence } from '@/lib/sequence-counter';
 
 interface RequestBody {
   userId: string;
   boardId: string;
   content: string;
   _id?: string;
-  isReply?: boolean;
-  mentionUser?: string;
+  mentionedUser?: string;
+  mentioningUser?: string;
 }
 
-export async function GET() {}
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const boardId = searchParams.get('boardId');
+
+  const database = connectDB.db('fit_me_up');
+  const commentsCollection = database.collection<Comment>('comments');
+
+  try {
+    if (boardId) {
+      const comments = await commentsCollection
+        .find<Comment>({
+          boardId: { $eq: boardId },
+        })
+        .toArray();
+      return NextResponse.json(comments);
+    } else {
+      throw new Error('boardId 파라미터가 없습니다.');
+    }
+  } catch (error) {
+    return NextResponse.json(error);
+  }
+}
 
 export async function POST(request: NextRequest) {
   const database = connectDB.db('fit_me_up');
@@ -34,17 +44,20 @@ export async function POST(request: NextRequest) {
 
   const body: RequestBody = await request.json();
 
-  if (body.isReply) {
+  if (body.mentioningUser) {
+    const replySequence = await getNextSequence(body._id!);
     const reply = await commentsCollection.updateOne(
       { _id: new ObjectId(body._id) },
       {
         $push: {
           replies: {
+            id: replySequence,
             userId: body.userId,
             boardId: body.boardId,
             content: body.content,
             createAt: date,
-            mentionUser: body.mentionUser!,
+            mentionedUser: body.mentionedUser!,
+            mentioningUser: body.mentioningUser!,
           },
         },
       }
