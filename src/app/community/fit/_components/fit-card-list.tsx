@@ -1,73 +1,45 @@
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
 import FitCard from './fit-card';
+import { Board } from '@/interfaces/board';
+import { ObjectId } from 'mongodb';
+import { BeatLoader } from 'react-spinners';
+
+interface TodayFitBoard extends Omit<Board, 'user' | 'fitInfo'> {
+  _id: string;
+  user: {
+    _id: string | ObjectId;
+    nickname: string;
+  };
+  fitInfo: {
+    section: string;
+    info: string;
+  }[];
+}
 
 export default function FitCardList() {
-  const cardItemlist = [
-    {
-      id: 1,
-      createAt: new Date(),
-      image: 'https://picsum.photos/500/600',
-      content: '따스해보이지 않나요? ㅎㅎ',
-      commentCount: '6',
-      likeCount: '5',
-      user: {
-        _id: '3453523720',
-        nickname: '노야',
-      },
+  const { data, isLoading } = useQuery<TodayFitBoard[]>({
+    queryKey: ['boards', 'todayFit'],
+    queryFn: async () => {
+      const data = await fetch('/api/board?category=todayFit', {
+        method: 'GET',
+      }).then((res) => res.json());
+      return data;
     },
-    {
-      id: 2,
-      createAt: new Date(),
-      image: 'https://picsum.photos/500/600',
-      content: '이런 날씨에 입으려고 이걸 샀지롱',
-      commentCount: '0',
-      likeCount: '5',
-      user: {
-        _id: '3453523720',
-        nickname: '왕족발',
-      },
-    },
-    {
-      id: 3,
-      createAt: new Date(),
-      image: 'https://picsum.photos/500/600',
-      content: '오늘의 착장',
-      commentCount: '2',
-      likeCount: '3',
-      user: {
-        _id: '3453523720',
-        nickname: '장충동',
-      },
-    },
-    {
-      id: 4,
-      createAt: new Date(),
-      image: 'https://picsum.photos/500/600',
-      content: '이번에 새로 산건데 저한테 맞는지 잘 모르겠네요... ㅎㅎㅎ',
-      commentCount: '4',
-      likeCount: '3',
-      user: {
-        _id: '3453523720',
-        nickname: '미요네즈',
-      },
-    },
-    {
-      id: 5,
-      createAt: new Date(),
-      image: 'https://picsum.photos/500/600',
-      content: '잇 이즈 투데이 룩 히히',
-      commentCount: '1',
-      likeCount: '2',
-      user: {
-        _id: '3453523720',
-        nickname: '선호등',
-      },
-    },
-  ];
+  });
+
+  if (isLoading)
+    return (
+      <section className="flex justify-center items-center xl:w-[1232px] lg:w-[816px] md:w-[400px]">
+        <BeatLoader color="black" size={15} className="py-4" />
+      </section>
+    );
 
   return (
     <section className="grid grid-cols-3 grid-flow-row gap-4 mb-5 max-xl:grid-cols-2 max-lg:flex max-lg:flex-col">
-      {cardItemlist.map((item) => (
-        <FitCard key={item.id} {...item} />
+      {data!.map((item) => (
+        <FitCard key={item._id as string} {...item} />
       ))}
     </section>
   );
