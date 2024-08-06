@@ -20,6 +20,12 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: process.env.AWS_CLOUD_FRONT_HOST_NAME,
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
