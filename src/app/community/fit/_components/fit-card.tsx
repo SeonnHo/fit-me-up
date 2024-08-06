@@ -1,6 +1,5 @@
 'use client';
 
-import Comment from '@/components/comment/comment';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -35,33 +34,91 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import Image from 'next/image';
+import { ObjectId } from 'mongodb';
+import CommentList from '@/components/comment/comment-list';
+import { dateFormatter } from '@/lib/date-formatter';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface Props {
+  _id: string;
   createAt: Date;
   content: string;
-  image: string;
-  commentCount: string;
-  likeCount: string;
+  images: string[];
+  commentCount: number;
+  likeCount: number;
+  fitInfo: {
+    section: string;
+    info: string;
+  }[];
+  bodyInfo: {
+    gender: string;
+    height: number | undefined;
+    weight: number | undefined;
+  };
   user: {
-    _id: string;
+    _id: string | ObjectId;
     nickname: string;
   };
 }
 
 export default function FitCard({
+  _id,
   createAt,
   content,
-  image,
+  images,
   commentCount,
   likeCount,
+  fitInfo,
+  bodyInfo,
   user,
 }: Props) {
   const [isLike, setIsLike] = useState(false);
   const [isShowComment, setIsShowComment] = useState(false);
   const [comment, setComment] = useState('');
-  const { mentionedUser, setMentionedUser } = useCommentStore();
+  const {
+    mentionedUser,
+    setMentionedUser,
+    mentioningUser,
+    setMentioningUser,
+    commentId,
+    setCommentId,
+  } = useCommentStore();
   const { data: session } = useSession();
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation({
+    mutationFn: async ({
+      _id,
+      userId,
+      boardId,
+      content,
+      mentionedUser,
+      mentioningUser,
+    }: {
+      _id: string;
+      userId: string | null | undefined;
+      boardId: string;
+      content: string;
+      mentionedUser: string;
+      mentioningUser: string;
+    }) => {
+      const data = await fetch('/api/comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _id: _id,
+          userId: userId,
+          boardId: boardId,
+          content: content,
+          mentionedUser,
+          mentioningUser,
+        }),
+      }).then((res) => res.json());
+      return data;
+    },
+    onSuccess: (_, { boardId }) =>
+      queryClient.invalidateQueries({ queryKey: ['comments', boardId] }),
+  });
 
   const handleAddComment = async () => {
     if (!comment) {
@@ -72,32 +129,35 @@ export default function FitCard({
       });
       return;
     }
-    // TODO: 댓글 추가 요청 API 로직 작성
-  };
 
-  const dateFormatter = (date: Date): string => {
-    const milliSeconds = new Date().getTime() - date.getTime();
-    const seconds = milliSeconds / 1000;
-    if (seconds < 60) return `방금 전`;
-    const minutes = seconds / 60;
-    if (minutes < 60) return `${Math.floor(minutes)}분 전`;
-    const hours = minutes / 60;
-    if (hours < 24) return `${Math.floor(hours)}시간 전`;
-    const days = hours / 24;
-    if (days < 7) return `${Math.floor(days)}일 전`;
-    const weeks = days / 7;
-    if (weeks < 5) return `${Math.floor(weeks)}주 전`;
-    const months = days / 30;
-    if (months < 12) return `${Math.floor(months)}개월 전`;
-    // const years = days / 365;
-    // return `${Math.floor(years)}년 전`;
-
-    const createAt = new Date(
-      date.toLocaleString('en-US', { timeZone: 'Asia/Seoul' })
+    mutate(
+      {
+        _id: commentId,
+        userId: session?.user.id,
+        boardId: _id,
+        content: comment,
+        mentionedUser,
+        mentioningUser,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: '댓글 등록',
+            description: '댓글이 성공적으로 등록되었습니다.',
+          });
+          setComment('');
+          setCommentId('');
+          setMentionedUser('');
+          setMentioningUser('');
+        },
+        onError: (error) => {
+          toast({
+            title: '에러 발생',
+            description: error.message,
+          });
+        },
+      }
     );
-    return `${createAt.getFullYear()}년 ${
-      createAt.getMonth() + 1
-    }월 ${createAt.getDate()}일`;
   };
 
   return (
@@ -119,9 +179,16 @@ export default function FitCard({
         </CardHeader>
         <CardContent className="space-y-2 p-0">
           <div className="relative w-full h-[500px]">
-            <FitImage image={image} />
+            <FitImage
+              image={
+                process.env.NEXT_PUBLIC_AWS_CLOUD_FRONT_TODAY_FIT_URL +
+                images[0]
+              }
+              fitInfo={fitInfo}
+              bodyInfo={bodyInfo}
+            />
           </div>
-          <div className="flex space-x-4 px-3">
+          <div className="flex px-3">
             <div className="flex items-center space-x-1">
               {isLike ? (
                 <FaHeart
@@ -136,7 +203,7 @@ export default function FitCard({
               )}
               <p className="text-sm">{likeCount}</p>
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 ml-4">
               <FaRegComment
                 className="size-6 cursor-pointer"
                 onClick={() => setIsShowComment(true)}
@@ -163,63 +230,8 @@ export default function FitCard({
                 {session?.user ? '' : '로그인 후 이용 가능합니다.'}
               </DrawerDescription>
             </DrawerHeader>
-            <div className="flex flex-col min-h-[150px] max-h-[500px] space-y-2 px-2 pb-2">
-              <ul className="overflow-scroll">
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-              </ul>
+            <div className="flex flex-col justify-between min-h-[150px] max-h-[500px] space-y-2 px-2 pb-2">
+              <CommentList boardId={_id} />
               <div className="flex flex-col space-y-1">
                 {mentionedUser && (
                   <div className="flex items-center space-x-4">
@@ -280,63 +292,8 @@ export default function FitCard({
                 {session?.user ? '' : '로그인 후 이용 가능합니다.'}
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <div className="flex flex-col h-[600px] space-y-2 pt-2">
-              <ul className="overflow-scroll">
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good1"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good2"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-                <Comment
-                  image="/profile_icon.png"
-                  nickname="good"
-                  createAt="2024-06-01"
-                  content="완전 멋있어요."
-                />
-              </ul>
+            <div className="flex flex-col justify-between h-[600px] space-y-2 pt-2">
+              <CommentList boardId={_id} />
               <div className="flex flex-col space-y-1">
                 {mentionedUser && (
                   <div className="flex items-center space-x-4">
