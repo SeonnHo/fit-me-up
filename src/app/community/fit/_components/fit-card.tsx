@@ -116,8 +116,10 @@ export default function FitCard({
       }).then((res) => res.json());
       return data;
     },
-    onSuccess: (_, { boardId }) =>
-      queryClient.invalidateQueries({ queryKey: ['comments', boardId] }),
+    onSuccess: (_, { boardId }) => {
+      queryClient.invalidateQueries({ queryKey: ['comments', boardId] });
+      queryClient.invalidateQueries({ queryKey: ['boards', 'todayFit'] });
+    },
   });
 
   const handleAddComment = async () => {
@@ -212,8 +214,9 @@ export default function FitCard({
             </div>
           </div>
           <div className="flex px-3 pb-3">
-            <p className="text-sm font-bold mr-2">{user.nickname}</p>
-            <p className="line-clamp-3 text-sm">{content}</p>
+            <p className="w-full line-clamp-3 text-sm break-all">
+              <b>{user.nickname}</b> {content}
+            </p>
           </div>
         </CardContent>
       </Card>
