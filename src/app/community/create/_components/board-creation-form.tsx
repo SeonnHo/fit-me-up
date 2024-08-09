@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const baseSchema = z.object({
   title: z.string().min(1, { message: '제목은 필수 입력 요소입니다.' }),
@@ -63,6 +64,20 @@ export default function BoardCreationForm() {
   const [isTooltipOpen, setIsTooltipOpen] = useState({
     bodyInfo: false,
     fitInfo: false,
+  });
+
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation({
+    mutationFn: async ({ body }: { body: FormData }) => {
+      const data = await fetch('/api/board', {
+        method: 'POST',
+        body: body,
+      }).then((res) => res.json());
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boards', category] });
+    },
   });
 
   const formSchema =
@@ -144,40 +159,38 @@ export default function BoardCreationForm() {
       new Blob([JSON.stringify(body)], { type: 'application/json' })
     );
 
-    await fetch('/api/board', {
-      method: 'POST',
-      body: sendData,
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        if (data.acknowledged) {
-          toast({
-            title: '게시물 등록 성공',
-            description:
-              '게시물이 정상적으로 등록됐습니다. 잠시 후 이전 페이지로 이동합니다.',
-          });
-          form.reset();
-          setCategory('');
-          setFiles([]);
-          resetFilePath();
-          setTimeout(() => {
-            router.back();
-          }, 2000);
-        } else {
-          toast({
-            title: '게시물 등록 실패',
-            description:
-              '게시물 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.',
-          });
-        }
-        setIsSubmitting(false);
-      })
-      .catch((error) => {
-        setIsSubmitting(false);
-        console.log(error);
-      });
+    mutate(
+      { body: sendData },
+      {
+        onSuccess: (data) => {
+          if (data.acknowledged) {
+            toast({
+              title: '게시물 등록 성공',
+              description:
+                '게시물이 정상적으로 등록됐습니다. 잠시 후 이전 페이지로 이동합니다.',
+            });
+            form.reset();
+            setCategory('');
+            setFiles([]);
+            resetFilePath();
+            setTimeout(() => {
+              router.back();
+            }, 2000);
+          } else {
+            toast({
+              title: '게시물 등록 실패',
+              description:
+                '게시물 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+            });
+          }
+          setIsSubmitting(false);
+        },
+        onError: (error) => {
+          setIsSubmitting(false);
+          console.log(error);
+        },
+      }
+    );
   };
 
   const handlePlusClick = () => {
