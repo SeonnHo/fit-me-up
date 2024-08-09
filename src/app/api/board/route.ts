@@ -19,23 +19,34 @@ const s3Client = new S3Client({ region: process.env.AWS_REGION });
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
+  const pageParam = searchParams.get('page');
+  const limit = searchParams.get('limit');
 
   const database = connectDB.db('fit_me_up');
   const boardsCollection = database.collection<Board>('boards');
 
   try {
     if (!category) {
-      console.log('error');
       throw new Error('"category" does not have a value.');
     }
 
-    const board = await boardsCollection
+    if (!pageParam) {
+      throw new Error('"pageParam" does not have a value.');
+    }
+
+    if (!limit) {
+      throw new Error('"limit" does not have a value.');
+    }
+
+    const boardList = await boardsCollection
       .find<Board>({ category })
+      .skip((Number(pageParam) - 1) * Number(limit))
+      .limit(Number(limit))
       .sort({ _id: -1 })
       .toArray();
 
     const addNicknameBoards = await Promise.all(
-      board.map(async (board) => {
+      boardList.map(async (board) => {
         const usersCollection = database.collection<User>('users');
 
         const user = await usersCollection.findOne({ _id: board.user });
@@ -51,7 +62,11 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json(addNicknameBoards);
+    return NextResponse.json({
+      boards: addNicknameBoards,
+      page: Number(pageParam),
+      next: boardList.length < Number(limit) ? null : true,
+    });
   } catch (error) {
     return NextResponse.json(error);
   }
