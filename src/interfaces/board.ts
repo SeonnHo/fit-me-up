@@ -9,6 +9,7 @@ export interface Board {
   fitInfo?: {
     section: string;
     info: string;
+    size: string;
   }[];
   bodyInfo: {
     gender: string;
