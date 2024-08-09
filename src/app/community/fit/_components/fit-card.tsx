@@ -49,6 +49,7 @@ interface Props {
   fitInfo: {
     section: string;
     info: string;
+    size: string;
   }[];
   bodyInfo: {
     gender: string;
@@ -162,6 +163,25 @@ export default function FitCard({
     );
   };
 
+  const handleLikeClick = async (isLike: boolean) => {
+    const body = {
+      userId: session?.user.id,
+      boardId: _id,
+      isLike,
+    };
+    const data = await fetch('/api/board/like', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+      .then((res) => {
+        setIsLike(isLike);
+        queryClient.invalidateQueries({ queryKey: ['boards', 'todayFit'] });
+        return res.json();
+      })
+      .catch((error) => console.log(error));
+  };
+
   return (
     <>
       <Card className="w-[400px] max-sm:w-full max-sm:rounded-none max-sm:border-y max-sm:border-x-0">
@@ -195,12 +215,12 @@ export default function FitCard({
               {isLike ? (
                 <FaHeart
                   className="size-6 text-red-500 cursor-pointer animate-heart-race"
-                  onClick={() => setIsLike(false)}
+                  onClick={() => handleLikeClick(false)}
                 />
               ) : (
                 <FaRegHeart
                   className="size-6 cursor-pointer"
-                  onClick={() => setIsLike(true)}
+                  onClick={() => handleLikeClick(true)}
                 />
               )}
               <p className="text-sm">{likeCount}</p>
