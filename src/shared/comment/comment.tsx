@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Button } from '../ui/button';
 import { useCommentStore } from '@/store/use-comment-store';
 import { toast } from '../ui/use-toast';
-import { dateFormatter } from '@/lib/date-formatter';
+import { dateFormatter } from '@/shared/lib/date-formatter';
 import { useQuery } from '@tanstack/react-query';
 import { User } from '@/interfaces/user';
 import { cn } from '@/lib/utils';

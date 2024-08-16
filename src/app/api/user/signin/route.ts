@@ -1,5 +1,5 @@
 import { connectDB } from '@/lib/database';
-import { signJwtAccessToken } from '@/lib/jwt';
+import { signJwtAccessToken } from '@/shared/lib/jwt';
 import * as bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 

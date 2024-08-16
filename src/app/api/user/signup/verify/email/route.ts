@@ -1,4 +1,4 @@
-import { sendEmail } from '@/lib/mailer';
+import { sendEmail } from '@/shared/api/mailer';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {

@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import { Nanum_Gothic, Roboto } from 'next/font/google';
 import './globals.css';
-import Header from '@/components/header/header';
-import AuthProvider from '@/context/auth-context';
-import { Toaster } from '@/components/ui/toaster';
-import ReactQueryProviders from '@/hooks/use-react-query';
+import Header from '@/shared/header/header';
+import AuthProvider from '@/app/_providers/auth-provider';
+import { Toaster } from '@/shared/ui/toaster';
+import ReactQueryProviders from '@/app/_providers/query-provider';
 
 const nanumGothic = Nanum_Gothic({
   weight: ['400', '700', '800'],

@@ -36,7 +36,7 @@ import {
 import Image from 'next/image';
 import { ObjectId } from 'mongodb';
 import CommentList from '@/components/comment/comment-list';
-import { dateFormatter } from '@/lib/date-formatter';
+import { dateFormatter } from '@/shared/lib/date-formatter';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface Props {
