@@ -5,7 +5,7 @@ export const sendEmail = async (email: string) => {
     body: JSON.stringify(email),
   })
     .then((res) => res.json())
-    .catch((error) => console.log(error));
+    .catch((error) => console.error(error));
 
   return authNumber;
 };

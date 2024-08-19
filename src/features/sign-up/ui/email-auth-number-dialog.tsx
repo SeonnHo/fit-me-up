@@ -1,3 +1,5 @@
+'use client';
+
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -12,23 +14,26 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/shared/ui/input-otp';
 import { MdClose } from 'react-icons/md';
 import { sendEmail } from '../api/send-email';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from '@/shared/ui/use-toast';
 
 interface AuthNumberDialogProps {
   email: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   maxLength: number;
-  onComplete: (value: any) => any;
   time: number;
+  onSuccess: () => void;
+  onFailed: () => void;
 }
 
-export const AuthNumberDialog = ({
+export const EmailAuthNumberDialog = ({
   email,
   open,
   onOpenChange,
   maxLength,
-  onComplete,
   time,
+  onSuccess,
+  onFailed,
 }: AuthNumberDialogProps) => {
   const authNumberRef = useRef('');
   const [timeLeft, setTimeLeft] = useState(time * 60);
@@ -69,6 +74,24 @@ export const AuthNumberDialog = ({
     authNumberRef.current = authNumber;
   };
 
+  const verifyEmail = (authNumber: string) => {
+    if (authNumberRef.current === authNumber) {
+      onSuccess();
+      clearInterval(timerRef.current);
+      toast({
+        title: '이메일 인증 완료',
+        description: '입력하신 이메일의 인증이 완료되었습니다.',
+      });
+    } else {
+      onFailed();
+      toast({
+        variant: 'destructive',
+        title: '유효하지 않은 번호',
+        description: '전송된 이메일을 다시 한 번 확인해주세요.',
+      });
+    }
+  };
+
   useEffect(() => {
     const fetch = async () => {
       const authNumber = await sendEmail(email);
@@ -97,7 +120,7 @@ export const AuthNumberDialog = ({
           <InputOTP
             maxLength={maxLength}
             containerClassName="justify-center"
-            onComplete={onComplete}
+            onComplete={(value) => verifyEmail(value)}
             disabled={timeLeft === 0}
           >
             <InputOTPGroup>
