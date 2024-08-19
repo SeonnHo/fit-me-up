@@ -1,3 +1,5 @@
+'use client';
+
 import { CredentialsSignInForm } from '@/features/sign-in';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { OAuthSignInList } from './oauth-sign-in-list';
