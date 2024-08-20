@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface Store {
+interface CommentStore {
   commentId: string;
   mentionedUser: string;
   mentioningUser: string;
@@ -9,7 +9,7 @@ interface Store {
   setMentioningUser: (user: string) => void;
 }
 
-export const useCommentStore = create<Store>((set) => ({
+export const useCommentStore = create<CommentStore>((set) => ({
   commentId: '',
   mentionedUser: '',
   mentioningUser: '',
