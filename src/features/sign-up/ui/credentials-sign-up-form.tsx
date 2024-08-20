@@ -2,6 +2,7 @@
 
 import { Button } from '@/shared/ui/button';
 import {
+  Form,
   FormControl,
   FormField,
   FormItem,
@@ -10,14 +11,14 @@ import {
 } from '@/shared/ui/form';
 import { Input } from '@/shared/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { z } from 'zod';
-import { signUp } from '../api/sign-up';
+import { credentialsSignUp } from '../api/sign-up';
 import {
   checkEmailDuplication,
   checkNicknameDuplication,
-} from '../api/check-duplication';
+} from '@/entities/user';
 import { useState } from 'react';
 import { EmailAuthNumberDialog } from './email-auth-number-dialog';
 import { toast } from '@/shared/ui/use-toast';
@@ -125,7 +126,7 @@ export const CredentialsSignUpForm = () => {
   };
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    const result = await signUp(values);
+    const result = await credentialsSignUp(values);
     if (result.acknowledged) {
       toast({
         title: '회원가입 완료',
@@ -170,7 +171,7 @@ export const CredentialsSignUpForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(signUp)} className="space-y-5">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
         <FormField
           control={form.control}
           name="email"
@@ -201,27 +202,32 @@ export const CredentialsSignUpForm = () => {
                 </Button>
               </div>
               <FormMessage />
-              <EmailAuthNumberDialog
-                open={isShowEmailAuthNumberDialog}
-                onOpenChange={setIsShowEmailAuthNumberDialog}
-                email={field.value}
-                time={3}
-                maxLength={6}
-                onSuccess={() => {
-                  setSignUpDisabledOption((prev) => ({
-                    ...prev,
-                    email: false,
-                  }));
-                  setIsShowEmailAuthNumberDialog(false);
-                  setValidation((prev) => ({
-                    ...prev,
-                    email: true,
-                  }));
-                }}
-                onFailed={() => {
-                  setSignUpDisabledOption((prev) => ({ ...prev, email: true }));
-                }}
-              />
+              {isShowEmailAuthNumberDialog && (
+                <EmailAuthNumberDialog
+                  open={isShowEmailAuthNumberDialog}
+                  onOpenChange={setIsShowEmailAuthNumberDialog}
+                  email={field.value}
+                  time={3}
+                  maxLength={6}
+                  onSuccess={() => {
+                    setSignUpDisabledOption((prev) => ({
+                      ...prev,
+                      email: false,
+                    }));
+                    setIsShowEmailAuthNumberDialog(false);
+                    setValidation((prev) => ({
+                      ...prev,
+                      email: true,
+                    }));
+                  }}
+                  onFailed={() => {
+                    setSignUpDisabledOption((prev) => ({
+                      ...prev,
+                      email: true,
+                    }));
+                  }}
+                />
+              )}
             </FormItem>
           )}
         />

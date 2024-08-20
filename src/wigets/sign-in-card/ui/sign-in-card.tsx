@@ -7,8 +7,7 @@ import Link from 'next/link';
 import { Separator } from '@/shared/ui/separator';
 import { signOut, useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   AlertDialog,
   AlertDialogAction,

@@ -94,8 +94,11 @@ export const EmailAuthNumberDialog = ({
 
   useEffect(() => {
     const fetch = async () => {
+      console.log(email);
       const authNumber = await sendEmail(email);
+      timerRef.current = startTimer();
       authNumberRef.current = authNumber;
+      console.log(authNumber, authNumberRef.current);
     };
     fetch();
   }, [email]);
