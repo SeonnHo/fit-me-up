@@ -1,4 +1,4 @@
-import { connectDB } from '../api/database';
+import { connectDB } from './database';
 
 async function getNextSequence(name: string) {
   const database = connectDB.db('fit_me_up');
