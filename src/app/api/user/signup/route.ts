@@ -1,4 +1,4 @@
-import { connectDB } from '@/lib/database';
+import { connectDB } from '@/shared/api/database';
 import * as bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
 

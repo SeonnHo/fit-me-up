@@ -1,5 +1,5 @@
 import { User } from '@/interfaces/user';
-import { connectDB } from '@/lib/database';
+import { connectDB } from '@/shared/api/database';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {

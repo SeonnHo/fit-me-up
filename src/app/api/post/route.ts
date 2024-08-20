@@ -1,4 +1,4 @@
-import { connectDB } from '@/lib/database';
+import { connectDB } from '@/shared/api/database';
 import { NextRequest, NextResponse } from 'next/server';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { InsertOneResult } from 'mongodb';

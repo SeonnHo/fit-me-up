@@ -1,4 +1,4 @@
-import { connectDB } from '@/lib/database';
+import { connectDB } from '@/shared/api/database';
 import { NextApiRequest } from 'next';
 import NextAuth, { RequestInternal } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';

@@ -1,5 +1,5 @@
 import { Board } from '@/interfaces/board';
-import { connectDB } from '@/lib/database';
+import { connectDB } from '@/shared/api/database';
 import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 

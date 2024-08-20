@@ -1,8 +1,8 @@
 import { ObjectId } from 'mongodb';
-import { connectDB } from '@/lib/database';
+import { connectDB } from '@/shared/api/database';
 import { NextRequest, NextResponse } from 'next/server';
 import { Comment } from '@/interfaces/comment';
-import { getNextSequence } from '@/lib/sequence-counter';
+import { getNextSequence } from '@/shared/api/get-next-sequence';
 import { Board } from '@/interfaces/board';
 
 interface RequestBody {

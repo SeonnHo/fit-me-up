@@ -1,5 +1,4 @@
-import { connectDB } from '@/lib/database';
-import { sendEmail } from '@/shared/api/mailer';
+import { connectDB } from '@/shared/api/database';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface User {
