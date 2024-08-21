@@ -1,13 +1,13 @@
 import { ObjectId } from 'mongodb';
 import { connectDB } from '@/shared/api/database';
 import { NextRequest, NextResponse } from 'next/server';
-import { Comment } from '@/interfaces/comment';
 import { getNextSequence } from '@/shared/api/get-next-sequence';
-import { Board } from '@/interfaces/board';
+import { Post } from '@/entities/post';
+import { Comment } from '@/entities/comment';
 
 interface RequestBody {
   userId: string;
-  boardId: string;
+  postId: string;
   content: string;
   _id?: string;
   mentionedUser?: string;
@@ -16,21 +16,21 @@ interface RequestBody {
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const boardId = searchParams.get('boardId');
+  const postId = searchParams.get('postId');
 
   const database = connectDB.db('fit_me_up');
   const commentsCollection = database.collection<Comment>('comments');
 
   try {
-    if (boardId) {
+    if (postId) {
       const comments = await commentsCollection
         .find<Comment>({
-          boardId: { $eq: boardId },
+          postId: { $eq: postId },
         })
         .toArray();
       return NextResponse.json(comments);
     } else {
-      throw new Error('boardId 파라미터가 없습니다.');
+      throw new Error('postId 파라미터가 없습니다.');
     }
   } catch (error) {
     return NextResponse.json(error);
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const database = connectDB.db('fit_me_up');
   const commentsCollection = database.collection<Comment>('comments');
-  const boardsCollection = database.collection<Board>('boards');
+  const postsCollection = database.collection<Post>('posts');
 
   const date = new Date();
 
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
             replies: {
               id: replySequence,
               userId: body.userId,
-              boardId: body.boardId,
+              postId: body.postId,
               content: body.content,
               createAt: date,
               mentionedUser: body.mentionedUser!,
@@ -65,25 +65,25 @@ export async function POST(request: NextRequest) {
           },
         }
       );
-      const boardCommentCount = await boardsCollection.findOneAndUpdate(
-        { _id: new ObjectId(body.boardId) },
+      const postCommentCount = await postsCollection.findOneAndUpdate(
+        { _id: new ObjectId(body.postId) },
         { $inc: { commentCount: 1 } }
       );
-      console.log(boardCommentCount);
+      console.log(postCommentCount);
 
       return NextResponse.json(reply);
     } else {
       const comment = await commentsCollection.insertOne({
         userId: body.userId,
-        boardId: body.boardId,
+        postId: body.postId,
         content: body.content,
         createAt: date,
       });
-      const boardCommentCount = await boardsCollection.findOneAndUpdate(
-        { _id: new ObjectId(body.boardId) },
+      const postCommentCount = await postsCollection.findOneAndUpdate(
+        { _id: new ObjectId(body.postId) },
         { $inc: { commentCount: 1 } }
       );
-      console.log(boardCommentCount);
+      console.log(postCommentCount);
 
       return NextResponse.json(comment);
     }

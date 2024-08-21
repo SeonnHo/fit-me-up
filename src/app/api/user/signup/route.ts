@@ -1,19 +1,24 @@
+import { User } from '@/entities/user';
 import { connectDB } from '@/shared/api/database';
 import * as bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
 
-interface User {
+interface RequestBody {
   email: string;
   password: string;
   nickname: string;
-  type: string;
+}
+
+interface UserWithPassword extends User {
+  password: string;
 }
 
 export async function POST(request: Request) {
   const database = connectDB.db('fit_me_up');
-  const usersCollection = database.collection<User>('users');
+  const usersCollection =
+    database.collection<Partial<UserWithPassword>>('users');
 
-  const body: User = await request.json();
+  const body: RequestBody = await request.json();
   const TYPE = 'credentials';
 
   const saltRounds = 10;

@@ -3,15 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { InsertOneResult } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '@/interfaces/user';
-import { Board } from '@/interfaces/board';
+import { Post, TodayFitPost } from '@/entities/post';
+import { User } from '@/entities/user';
 
 interface RequsetBody {
   category: string;
   title?: string;
   content: string;
   user: string;
-  fitInfo?: { section: string; info: string }[];
+  fashionInfo?: { section: string; info: string; size: string }[];
 }
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   const limit = searchParams.get('limit');
 
   const database = connectDB.db('fit_me_up');
-  const boardsCollection = database.collection<Board>('boards');
+  const postsCollection = database.collection<Post | TodayFitPost>('posts');
 
   try {
     if (!category) {
@@ -38,34 +38,34 @@ export async function GET(request: NextRequest) {
       throw new Error('"limit" does not have a value.');
     }
 
-    const boardList = await boardsCollection
-      .find<Board>({ category })
+    const postList = await postsCollection
+      .find({ category })
       .skip((Number(pageParam) - 1) * Number(limit))
       .limit(Number(limit))
       .sort({ _id: -1 })
       .toArray();
 
-    const addNicknameBoards = await Promise.all(
-      boardList.map(async (board) => {
+    const addNicknamePosts = await Promise.all(
+      postList.map(async (post) => {
         const usersCollection = database.collection<User>('users');
 
-        const user = await usersCollection.findOne({ _id: board.user });
+        const user = await usersCollection.findOne({ _id: post.user });
 
         if (!user) {
           throw new Error('User not found.');
         }
 
         return {
-          ...board,
-          user: { _id: user._id, nickname: user.nickname },
+          ...post,
+          user: { _id: user._id, nickname: user.nickname, image: user.image },
         };
       })
     );
 
     return NextResponse.json({
-      boards: addNicknameBoards,
+      posts: addNicknamePosts,
       page: Number(pageParam),
-      next: boardList.length < Number(limit) ? null : true,
+      next: postList.length < Number(limit) ? null : true,
     });
   } catch (error) {
     return NextResponse.json(error);
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const database = connectDB.db('fit_me_up');
-  const boardCollection = database.collection('boards');
+  const postsCollection = database.collection('posts');
 
   const formData = await request.formData();
 
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
             const params = {
               Bucket: process.env.AWS_BUCKET,
               Body: buffer,
-              Key: `board/${category}/${uuid + fileExtension}`,
+              Key: `post/${category}/${uuid + fileExtension}`,
               ContentType: file.type,
             };
             const command = new PutObjectCommand(params);
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      result = await boardCollection.insertOne({
+      result = await postsCollection.insertOne({
         ...body,
         createAt: new Date(),
         likeCount: 0,

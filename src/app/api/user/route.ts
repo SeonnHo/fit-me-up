@@ -1,4 +1,4 @@
-import { User } from '@/interfaces/user';
+import { User } from '@/entities/user';
 import { connectDB } from '@/shared/api/database';
 import { NextRequest, NextResponse } from 'next/server';
 

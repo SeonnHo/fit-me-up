@@ -1,13 +1,6 @@
+import { User } from '@/entities/user';
 import { connectDB } from '@/shared/api/database';
 import { NextRequest, NextResponse } from 'next/server';
-
-interface User {
-  _id: string;
-  email: string | null | undefined;
-  password: string | null | undefined;
-  nickname: string;
-  type: string;
-}
 
 export async function POST(request: NextRequest) {
   const database = connectDB.db('fit_me_up');
