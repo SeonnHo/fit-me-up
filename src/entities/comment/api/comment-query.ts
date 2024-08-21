@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { Comment } from '../lib/comment-interface';
 
-export const useCommentQuery = (boardId: string) => {
+export const useCommentQuery = (postId: string) => {
   const fetchComments = async () => {
-    const res = await fetch(`/api/comment?boardId=${boardId}`, {
+    const res = await fetch(`/api/comment?boardId=${postId}`, {
       method: 'GET',
     });
 
@@ -15,7 +15,7 @@ export const useCommentQuery = (boardId: string) => {
     isLoading,
     isFetching,
   } = useQuery<Comment[]>({
-    queryKey: ['comments', boardId],
+    queryKey: ['comments', postId],
     queryFn: fetchComments,
   });
 

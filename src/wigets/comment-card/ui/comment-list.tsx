@@ -2,17 +2,17 @@
 
 import React from 'react';
 import { CommentItem } from './comment-item';
-import { useSession } from 'next-auth/react';
 import { useCommentQuery } from '@/entities/comment';
 import { SkeletonCommentItem } from './skeleton-comment-item';
+import { Session } from 'next-auth';
 
 interface CommentListProps {
-  boardId: string;
+  postId: string;
+  session: Session | null;
 }
 
-export const CommentList = ({ boardId }: CommentListProps) => {
-  const { comments, isLoading, isFetching } = useCommentQuery(boardId);
-  const { data: session } = useSession();
+export const CommentList = ({ postId, session }: CommentListProps) => {
+  const { comments, isLoading, isFetching } = useCommentQuery(postId);
 
   if (isLoading || isFetching) {
     return (

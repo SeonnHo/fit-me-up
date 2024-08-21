@@ -1,3 +1,5 @@
+'use client';
+
 import { useUserQuery } from '@/entities/user';
 import { dateFormatter } from '@/shared/lib/date-formatter';
 import { cn } from '@/shared/lib/tailwind-merge';

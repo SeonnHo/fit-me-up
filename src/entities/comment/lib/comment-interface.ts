@@ -3,7 +3,7 @@ import { Reply } from './reply-interface';
 
 export interface Comment {
   _id?: ObjectId | string;
-  boardId: string;
+  postId: string;
   userId: string;
   createAt: Date;
   content: string;
