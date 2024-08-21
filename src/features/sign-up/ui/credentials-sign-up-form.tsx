@@ -18,7 +18,7 @@ import { credentialsSignUp } from '../api/sign-up';
 import {
   checkEmailDuplication,
   checkNicknameDuplication,
-} from '@/entities/user';
+} from '../api/check-duplication';
 import { useState } from 'react';
 import { EmailAuthNumberDialog } from './email-auth-number-dialog';
 import { toast } from '@/shared/ui/use-toast';
