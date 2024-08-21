@@ -1,8 +1,9 @@
+'use client';
+
 import { InfiniteQueryObserverResult } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 
-interface IUseIntersectionObserverProps {
-  // readonly observeTargetRef: RefObject<HTMLDivElement>;
+interface UseIntersectionObserverProps {
   threshold?: number;
   readonly hasNextPage: boolean | undefined;
   readonly fetchNextPage: () => Promise<InfiniteQueryObserverResult>;
@@ -12,7 +13,7 @@ export const useIntersectionObserver = ({
   threshold = 0.1,
   hasNextPage,
   fetchNextPage,
-}: IUseIntersectionObserverProps) => {
+}: UseIntersectionObserverProps) => {
   const observeTargetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
