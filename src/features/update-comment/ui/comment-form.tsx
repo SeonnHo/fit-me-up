@@ -10,22 +10,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { FaArrowUpLong } from 'react-icons/fa6';
 import { z } from 'zod';
+import { useCommentModalStore } from '@/shared/model/comment-modal-store';
 
 const formSchema = z.object({
   comment: z.string().min(1, { message: '내용을 입력해주세요.' }),
 });
 
-interface CommentEditFormProps {
+interface CommentFormProps {
   userId: string;
-  postId: string;
-  category: string;
 }
 
-export const CommentEditForm = ({
-  userId,
-  postId,
-  category,
-}: CommentEditFormProps) => {
+export const CommentForm = ({ userId }: CommentFormProps) => {
+  const { postId, category } = useCommentModalStore();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -81,7 +78,7 @@ export const CommentEditForm = ({
         <FormField
           control={form.control}
           name="comment"
-          render={(field) => (
+          render={() => (
             <FormItem className="flex flex-col space-y-1">
               {mentionedUser && (
                 <div className="flex items-center space-x-4">

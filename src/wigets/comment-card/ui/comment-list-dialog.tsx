@@ -11,17 +11,15 @@ import {
 import { MdClose } from 'react-icons/md';
 import { CommentList } from './comment-list';
 import { Session } from 'next-auth';
-import { CommentEditForm } from '@/features/update-comment';
+import { CommentForm } from '@/features/update-comment';
 
 interface CommentListDialogProps {
-  postId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   session: Session | null;
 }
 
 export const CommentListDialog = ({
-  postId,
   open,
   onOpenChange,
   session,
@@ -45,8 +43,8 @@ export const CommentListDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex flex-col justify-between h-[600px] space-y-2 pt-2">
-          <CommentList postId={postId} session={session} />
-          <CommentEditForm postId={postId} userId={session?.user.id!} />
+          <CommentList session={session} />
+          <CommentForm userId={session?.user.id!} />
         </div>
       </AlertDialogContent>
     </AlertDialog>

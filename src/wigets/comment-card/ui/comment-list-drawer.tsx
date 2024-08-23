@@ -9,17 +9,15 @@ import {
 } from '@/shared/ui/drawer';
 import { Session } from 'next-auth';
 import { CommentList } from './comment-list';
-import { CommentEditForm } from '@/features/update-comment';
+import { CommentForm } from '@/features/update-comment';
 
 interface CommentListDialogProps {
-  postId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   session: Session | null;
 }
 
 export const CommentListDrawer = ({
-  postId,
   open,
   onOpenChange,
   session,
@@ -34,8 +32,8 @@ export const CommentListDrawer = ({
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col justify-between min-h-[150px] max-h-[500px] space-y-2 px-2 pb-2">
-          <CommentList postId={postId} session={session} />
-          <CommentEditForm postId={postId} userId={session?.user.id!} />
+          <CommentList session={session} />
+          <CommentForm userId={session?.user.id!} />
         </div>
       </DrawerContent>
     </Drawer>

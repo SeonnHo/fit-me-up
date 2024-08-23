@@ -5,13 +5,14 @@ import { CommentItem } from './comment-item';
 import { useCommentQuery } from '@/entities/comment';
 import { SkeletonCommentItem } from './skeleton-comment-item';
 import { Session } from 'next-auth';
+import { useCommentModalStore } from '@/shared/model/comment-modal-store';
 
 interface CommentListProps {
-  postId: string;
   session: Session | null;
 }
 
-export const CommentList = ({ postId, session }: CommentListProps) => {
+export const CommentList = ({ session }: CommentListProps) => {
+  const { postId } = useCommentModalStore();
   const { comments, isLoading, isFetching } = useCommentQuery(postId);
 
   if (isLoading || isFetching) {
