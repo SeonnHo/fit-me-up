@@ -15,7 +15,7 @@ import { z } from 'zod';
 import { oauthSignUp } from '../api/sign-up';
 import { toast } from '@/shared/ui/use-toast';
 import { signIn } from 'next-auth/react';
-import { checkNicknameDuplication } from '@/entities/user';
+import { checkNicknameDuplication } from '../api/check-duplication';
 import { useState } from 'react';
 import { Input } from '@/shared/ui/input';
 import { useValidationStore } from '../model/validation-store';
