@@ -3,15 +3,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { InsertOneResult } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
-import { Post, TodayFitPost } from '@/entities/post';
+import { Post } from '@/entities/post';
 import { User } from '@/entities/user';
 
 interface RequsetBody {
   category: string;
   title?: string;
   content: string;
-  user: string;
-  fashionInfo?: { section: string; info: string; size: string }[];
+  userId: string;
+  bodyInfo?: {
+    gender: string;
+    height: number;
+    weight: number;
+  };
+  fashionInfo?: {
+    section: string;
+    info: string;
+    size: string;
+  }[];
 }
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
@@ -23,7 +32,7 @@ export async function GET(request: NextRequest) {
   const limit = searchParams.get('limit');
 
   const database = connectDB.db('fit_me_up');
-  const postsCollection = database.collection<Post | TodayFitPost>('posts');
+  const postsCollection = database.collection<Post>('posts');
 
   try {
     if (!category) {
@@ -49,7 +58,9 @@ export async function GET(request: NextRequest) {
       postList.map(async (post) => {
         const usersCollection = database.collection<User>('users');
 
-        const user = await usersCollection.findOne({ _id: post.user });
+        const user = await usersCollection.findOne({
+          _id: post.userId,
+        });
 
         if (!user) {
           throw new Error('User not found.');
@@ -91,8 +102,8 @@ export async function POST(request: NextRequest) {
         .replace(/([a-z])([A-Z])/g, '$1-$2')
         .toLocaleLowerCase();
 
-      if (formData.has('image')) {
-        for (const file of formData.getAll('image')) {
+      if (formData.has('files')) {
+        for (const file of formData.getAll('files')) {
           const uuid = uuidv4();
           if (file instanceof File) {
             const fileExtension = `.${file.name.split('.').pop()}`;
