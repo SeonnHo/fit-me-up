@@ -6,6 +6,7 @@ import { HeaderNavigationMenu } from './header-navigation-menu';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { Button } from '@/shared/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
 
 interface DesktopHeaderProps {
   session: Session | null;
@@ -39,8 +40,11 @@ export const DesktopHeader = ({
         />
         {session && session.user ? (
           <div className="flex items-center">
-            <div className="flex items-center mx-4 space-x-2">
-              <div className="size-10 bg-default-profile bg-center bg-no-repeat bg-contain" />
+            <div className="flex items-center mx-4 space-x-2 cursor-pointer">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="/profile_icon.png" alt="프로필 이미지" />
+                <AvatarFallback></AvatarFallback>
+              </Avatar>
               <div className="text-sm font-bold">{session.user.nickname}</div>
             </div>
             <Button

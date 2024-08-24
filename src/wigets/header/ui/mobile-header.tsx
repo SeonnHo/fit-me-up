@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { MdMenu } from 'react-icons/md';
 import { HeaderNavigationMenu } from './header-navigation-menu';
 import Link from 'next/link';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
 
 interface MobileHeaderProps {
   session: Session | null;
@@ -50,7 +51,10 @@ export const MobileHeader = ({
           <SheetContent side="left" className="flex flex-col justify-between">
             <div className="flex flex-col">
               <SheetHeader className="items-center mt-4">
-                <div className="size-16 bg-default-profile bg-center bg-no-repeat bg-contain" />
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src="/profile_icon.png" alt="프로필 이미지" />
+                  <AvatarFallback></AvatarFallback>
+                </Avatar>
                 <SheetTitle className="text-base font-bold">
                   {session && session.user
                     ? session.user.nickname

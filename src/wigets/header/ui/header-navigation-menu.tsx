@@ -48,7 +48,7 @@ export const HeaderNavigationMenu = ({
         <ul className="flex flex-col">
           <li className="px-4 py-3">
             <Link
-              href="/community/fit"
+              href="/community/todayfit"
               className="font-bold block"
               onClick={onMenuClick}
             >
@@ -163,7 +163,7 @@ export const HeaderNavigationMenu = ({
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <Link href={'/community/fit'} legacyBehavior passHref>
+                <Link href={'/community/todayfit'} legacyBehavior passHref>
                   <NavigationMenuLink
                     className={navigationMenuTriggerStyle({
                       className: '[font-weight:bold]',
