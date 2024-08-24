@@ -6,25 +6,29 @@ import { useSession } from 'next-auth/react';
 import { CommentListDialog } from './comment-list-dialog';
 import { useCommentModalStore } from '@/shared/model/comment-modal-store';
 
-export const CommentCard = () => {
+export const CommentModal = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { data: session } = useSession();
   const { isOpen, onClose } = useCommentModalStore();
 
-  if (isMobile) {
+  if (!isOpen) return;
+
+  if (isMobile && isOpen) {
     return (
       <CommentListDrawer
         open={isOpen}
-        onOpenChange={onClose}
         session={session}
+        onOpenChange={onClose}
       />
     );
-  } else {
+  }
+
+  if (!isMobile && isOpen) {
     return (
       <CommentListDialog
         open={isOpen}
-        onOpenChange={onClose}
         session={session}
+        onOpenChange={onClose}
       />
     );
   }
