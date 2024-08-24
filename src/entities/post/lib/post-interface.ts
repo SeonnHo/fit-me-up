@@ -6,7 +6,7 @@ export interface Post {
   content: string;
   category: string;
   createAt: Date;
-  user: string | ObjectId;
+  userId: string | ObjectId;
   likeCount: number;
   commentCount: number;
   images: string[];
