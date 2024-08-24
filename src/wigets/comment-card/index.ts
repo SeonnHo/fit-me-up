@@ -1,2 +1,2 @@
-export { CommentCard } from './ui/comment-card';
+export { CommentModal } from './ui/comment-modal';
 export { CommentList } from './ui/comment-list';
