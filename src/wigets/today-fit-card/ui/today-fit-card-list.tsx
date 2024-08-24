@@ -8,7 +8,7 @@ import { BeatLoader } from 'react-spinners';
 
 export const TodayFitCardList = () => {
   const { posts, isLoading, isFetching, hasNextPage, fetchNextPage } =
-    usePostInfiniteQuery({ limit: 6 });
+    usePostInfiniteQuery({ limit: 6, category: 'todayFit' });
 
   const observeTargetRef = useIntersectionObserver({
     hasNextPage,
@@ -28,8 +28,8 @@ export const TodayFitCardList = () => {
   return (
     <>
       <section className="grid grid-cols-3 grid-flow-row gap-4 mb-5 max-xl:grid-cols-2 max-lg:flex max-lg:flex-col">
-        {posts?.pages.flatMap((page) =>
-          page.posts.flatMap((post) => (
+        {posts?.pages.map((page) =>
+          page.posts.map((post) => (
             <TodayFitCard
               key={post._id as string}
               postId={post._id as string}

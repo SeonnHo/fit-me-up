@@ -54,6 +54,7 @@ export const TodayFitCard = ({
 }: TodayFitCardProps) => {
   const [isLike, setIsLike] = useState(false);
   const { onOpen } = useCommentModalStore();
+
   return (
     <Card className="w-[400px] max-sm:w-full max-sm:rounded-none max-sm:border-y max-sm:border-x-0">
       <CardHeader className="p-3 flex flex-row justify-between items-center space-y-0">

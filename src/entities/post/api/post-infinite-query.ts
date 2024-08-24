@@ -1,10 +1,9 @@
-'use client';
-
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { TodayFitPost } from '../lib/post-interface';
 
 interface UsePostInfiniteQueryProps {
   limit: number;
+  category: string;
 }
 
 interface TodayFitPostResponse {
@@ -13,12 +12,13 @@ interface TodayFitPostResponse {
   next: boolean | null;
 }
 
-export const usePostInfiniteQuery = ({ limit }: UsePostInfiniteQueryProps) => {
-  const CATEGORY = 'todayFit';
-
+export const usePostInfiniteQuery = ({
+  limit,
+  category,
+}: UsePostInfiniteQueryProps) => {
   const fetchPost = async ({ pageParam }: { pageParam: unknown }) => {
     const res = await fetch(
-      `/api/post?category=${CATEGORY}&page=${pageParam}&limit=${limit}`,
+      `/api/post?category=${category}&page=${pageParam}&limit=${limit}`,
       {
         method: 'GET',
       }
@@ -34,7 +34,7 @@ export const usePostInfiniteQuery = ({ limit }: UsePostInfiniteQueryProps) => {
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery<TodayFitPostResponse>({
-    queryKey: ['posts', 'todayFit'],
+    queryKey: ['posts', category],
     queryFn: fetchPost,
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
