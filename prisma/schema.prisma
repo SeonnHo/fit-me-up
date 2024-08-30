@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  nickname  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts       Post[]
+  comments    Comment[] @relation("Comment")
+  likePosts   Like[]
+  mentionedIn Comment[] @relation("MentionedUsers")
+
+  @@index([email, nickname])
+}
+
+model Post {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  category    String
+  title       String?
+  content     String
+  imageUrls   String[]
+  bodyInfo    String?
+  fashionInfo String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  authorId String @db.ObjectId
+  author   User   @relation(fields: [authorId], references: [id])
+
+  comments Comment[]
+  likes    Like[]
+
+  @@index([authorId, category, createdAt])
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId String @db.ObjectId
+  author   User   @relation("Comment", fields: [authorId], references: [id])
+
+  postId String @db.ObjectId
+  post   Post   @relation(fields: [postId], references: [id])
+
+  parentId String?  @db.ObjectId
+  parent   Comment? @relation("CommentToComment", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  mentionedUserIds String? @db.ObjectId
+  mentionedUsers   User?   @relation("MentionedUsers", fields: [mentionedUserIds], references: [id])
+
+  replies Comment[] @relation("CommentToComment")
+
+  @@index([authorId, postId, parentId, createdAt])
+}
+
+model Like {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([userId, postId, createdAt])
+}
