@@ -14,12 +14,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  nickname  String   @unique
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  nickname        String   @unique
+  profileImageUrl String?
+  email           String   @unique
+  password        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   posts       Post[]
   comments    Comment[] @relation("Comment")
@@ -29,16 +30,41 @@ model User {
   @@index([email, nickname])
 }
 
+model OAuthUser {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  oauthId         String   @unique
+  nickname        String   @unique
+  profileImageUrl String?
+  email           String
+  provider        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([oauthId, nickname])
+}
+
+type BodyInfo {
+  gender String
+  height Int
+  weight Int
+}
+
+type FashionInfo {
+  section String
+  info    String
+  size    String
+}
+
 model Post {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
   category    String
   title       String?
   content     String
   imageUrls   String[]
-  bodyInfo    String?
-  fashionInfo String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  bodyInfo    BodyInfo?
+  fashionInfo FashionInfo[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   authorId String @db.ObjectId
   author   User   @relation(fields: [authorId], references: [id])
