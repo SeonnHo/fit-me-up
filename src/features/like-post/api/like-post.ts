@@ -20,13 +20,24 @@ export const useLikePost = () => {
       postId,
       isLike,
     });
-    const res = await fetch('/api/post/like', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: body,
-    });
 
-    return res.json();
+    if (isLike) {
+      const res = await fetch('/api/post/like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body,
+      });
+
+      return res.json();
+    } else {
+      const res = await fetch('/api/post/like', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: body,
+      });
+
+      return res.json();
+    }
   };
 
   const { mutate } = useMutation({

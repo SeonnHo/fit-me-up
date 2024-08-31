@@ -1,7 +1,5 @@
-import { Post } from '@/entities/post';
-import { connectDB } from '@/shared/api/database';
-import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/shared/lib/db';
 
 interface RequestBody {
   userId: string;
@@ -10,18 +8,40 @@ interface RequestBody {
 }
 
 export async function POST(request: NextRequest) {
-  const database = connectDB.db('fit_me_up');
-  const postsCollection = database.collection<Post>('posts');
-
-  const body: RequestBody = await request.json();
+  const { userId, postId, isLike }: RequestBody = await request.json();
 
   try {
-    const result = await postsCollection.findOneAndUpdate(
-      { _id: new ObjectId(body.postId) },
-      { $inc: { likeCount: body.isLike ? 1 : -1 } }
-    );
+    if (isLike) {
+      const result = await prisma.like.create({
+        data: {
+          userId: userId,
+          postId: postId,
+        },
+      });
 
-    return NextResponse.json(result);
+      return NextResponse.json(result);
+    }
+  } catch (error) {
+    throw new Error(error as string);
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const { userId, postId, isLike }: RequestBody = await request.json();
+
+  try {
+    if (userId && postId && !isLike) {
+      const result = await prisma.like.delete({
+        where: {
+          userId_postId: {
+            userId,
+            postId,
+          },
+        },
+      });
+
+      return NextResponse.json(result);
+    }
   } catch (error) {
     throw new Error(error as string);
   }
