@@ -5,13 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { RiErrorWarningFill } from 'react-icons/ri';
 
 interface OAuthSignUpCardProps {
-  params: {
-    provider: string;
-    id: string;
-  };
+  oauthId: string;
+  provider: string;
 }
 
-export const OAuthSignUpCard = ({ params }: OAuthSignUpCardProps) => {
+export const OAuthSignUpCard = ({
+  oauthId,
+  provider,
+}: OAuthSignUpCardProps) => {
   const { isValidNickname } = useValidationStore();
 
   return (
@@ -20,9 +21,9 @@ export const OAuthSignUpCard = ({ params }: OAuthSignUpCardProps) => {
         <CardTitle className="text-center">회원가입</CardTitle>
       </CardHeader>
       <CardContent>
-        <OAuthSignUpForm params={params} />
+        <OAuthSignUpForm oauthId={oauthId} provider={provider} />
       </CardContent>
-      {isValidNickname && (
+      {!isValidNickname && (
         <section className="flex justify-center items-center mt-4 max-sm:flex-col max-sm:px-2 absolute -bottom-10 left-1/2 -translate-x-1/2 w-screen max-sm:-bottom-14">
           <RiErrorWarningFill className="size-5 text-red-600 mr-2 max-sm:mb-2 shrink-0" />
           <p className="font-bold text-sm text-red-600 text-center">

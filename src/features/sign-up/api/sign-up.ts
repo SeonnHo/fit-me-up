@@ -12,10 +12,18 @@ export const credentialsSignUp = async (values: any) => {
   return result;
 };
 
-export const oauthSignUp = async (values: any) => {
-  const { id, nickname } = values;
-
-  const body = JSON.stringify({ id, nickname });
+export const oauthSignUp = async ({
+  oauthId,
+  email,
+  nickname,
+  provider,
+}: {
+  oauthId: string;
+  email: string;
+  nickname: string;
+  provider: string;
+}) => {
+  const body = JSON.stringify({ oauthId, email, nickname, provider });
 
   const result = await fetch('/api/user/signup/oauth', {
     method: 'POST',

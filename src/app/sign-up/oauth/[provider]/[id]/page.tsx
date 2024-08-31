@@ -21,7 +21,7 @@ export default function OAuthSignUpPage({ params }: OAuthSignUpPageProps) {
 
   return (
     <main className="flex flex-col justify-center items-center h-screen max-sm:justify-start max-sm:pt-[60px]">
-      <OAuthSignUpCard params={params} />
+      <OAuthSignUpCard oauthId={params.id} provider={params.provider} />
     </main>
   );
 }

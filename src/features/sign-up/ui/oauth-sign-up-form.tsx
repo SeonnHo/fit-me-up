@@ -23,6 +23,11 @@ import { useValidationStore } from '../model/validation-store';
 const nicknameRegex = /[a-zA-Z0-9가-힣]/g;
 
 const formSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: '이메일을 입력해 주세요.' })
+    .email({ message: '이메일 형식에 맞게 작성해 주세요.' }),
+
   nickname: z
     .string({ required_error: '닉네임을 입력해 주세요.' })
     .min(2, { message: '최소 2자 이상 입력해 주세요.' })
@@ -33,13 +38,14 @@ const formSchema = z.object({
 });
 
 interface OAuthSignUpFormProps {
-  params: {
-    provider: string;
-    id: string;
-  };
+  oauthId: string;
+  provider: string;
 }
 
-export const OAuthSignUpForm = ({ params }: OAuthSignUpFormProps) => {
+export const OAuthSignUpForm = ({
+  oauthId,
+  provider,
+}: OAuthSignUpFormProps) => {
   const [
     isEnabledCheckNicknameDuplication,
     setIsEnabledCheckNicknameDuplication,
@@ -49,22 +55,25 @@ export const OAuthSignUpForm = ({ params }: OAuthSignUpFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      email: '',
       nickname: '',
     },
   });
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     const result = await oauthSignUp({
-      id: params.id,
+      oauthId,
+      email: values.email,
       nickname: values.nickname,
+      provider,
     });
 
-    if (result.acknowledged) {
+    if (result) {
       toast({
         title: '회원가입 완료',
         description: '핏미업에 오신 걸 환영합니다.',
       });
-      await signIn(params.provider, {
+      await signIn(provider, {
         redirect: true,
         callbackUrl: '/',
       });
@@ -110,6 +119,20 @@ export const OAuthSignUpForm = ({ params }: OAuthSignUpFormProps) => {
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
         <FormField
           control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>이메일</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="이메일" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="nickname"
           render={({ field }) => (
             <FormItem>
@@ -122,7 +145,9 @@ export const OAuthSignUpForm = ({ params }: OAuthSignUpFormProps) => {
                   type="button"
                   variant={'outline'}
                   className="ml-4 font-bold"
-                  onClick={() => checkNicknameDuplication(field.value)}
+                  onClick={() =>
+                    handleCheckNicknameDuplicationClick(field.value)
+                  }
                   disabled={!isEnabledCheckNicknameDuplication}
                 >
                   중복확인

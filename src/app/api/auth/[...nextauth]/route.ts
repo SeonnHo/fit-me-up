@@ -1,18 +1,9 @@
-import { connectDB } from '@/shared/api/database';
 import { NextApiRequest } from 'next';
 import NextAuth, { RequestInternal } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import KakaoProvider from 'next-auth/providers/kakao';
 import NaverProvider from 'next-auth/providers/naver';
 import GoogleProvider from 'next-auth/providers/google';
-
-interface User {
-  _id: string;
-  email: string | null | undefined;
-  password: string | null | undefined;
-  nickname: string | null | undefined;
-  type: string;
-}
 
 const handler = NextAuth({
   providers: [
@@ -86,92 +77,44 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === 'kakao') {
-        const database = connectDB.db('fit_me_up');
-        const usersCollection = database.collection<User>('users');
+    async signIn({ user, account, profile }) {
+      const apiUrl = `${process.env.NEXTAUTH_URL}/api/user/signin/oauth?oauthId=${user.id}&provider=${account?.provider}`;
 
-        const existingUser = await usersCollection.findOne<User>({
-          _id: user.id,
-        });
+      const response = await fetch(apiUrl);
 
-        if (!existingUser) {
-          const newUser = await usersCollection.insertOne({
-            _id: user.id,
-            email: null,
-            password: null,
-            nickname: null,
-            type: account!.provider,
-          });
+      if (!response.ok) {
+        throw new Error(`API call failed: ${response.status}`);
+      }
 
-          return `/sign-up/oauth/${account!.provider}/${newUser.insertedId}`;
-        }
+      const existedUser = await response.json();
 
-        if (!existingUser.nickname) {
-          return `/sign-up/oauth/${account!.provider}/${existingUser._id}`;
+      if (existedUser) {
+        if (!existedUser.nickname && !existedUser.email) {
+          return `/sign-up/oauth/${account?.provider}/${user.id}`;
         } else {
-          user.nickname = existingUser.nickname;
+          user.email = existedUser.email;
+          user.nickname = existedUser.nickname;
+          return true;
         }
       }
 
-      if (account?.provider === 'naver') {
-        const database = connectDB.db('fit_me_up');
-        const usersCollection = database.collection<User>('users');
-
-        const existingUser = await usersCollection.findOne<User>({
-          _id: user.id,
-        });
-
-        if (!existingUser) {
-          const newUser = await usersCollection.insertOne({
-            _id: user.id,
-            email: null,
-            password: null,
-            nickname: null,
-            type: account.provider,
-          });
-
-          return `/sign-up/oauth/${account.provider}/${newUser.insertedId}`;
-        }
-
-        if (!existingUser.nickname) {
-          return `/sign-up/oauth/${account!.provider}/${existingUser._id}`;
-        } else {
-          user.nickname = existingUser.nickname;
-        }
+      if (!existedUser) {
+        return `/sign-up/oauth/${account?.provider}/${user.id}`;
       }
 
-      if (account?.provider === 'google') {
-        const database = connectDB.db('fit_me_up');
-        const usersCollection = database.collection<User>('users');
-
-        const existingUser = await usersCollection.findOne<User>({
-          _id: user.id,
-        });
-
-        if (!existingUser) {
-          const newUser = await usersCollection.insertOne({
-            _id: user.id,
-            email: user.email,
-            password: null,
-            nickname: null,
-            type: account.provider,
-          });
-
-          return `/sign-up/oauth/${account.provider}/${newUser.insertedId}`;
-        }
-
-        if (!existingUser.nickname) {
-          return `/sign-up/oauth/${account!.provider}/${existingUser._id}`;
-        } else {
-          user.nickname = existingUser.nickname;
-        }
-      }
-
-      return true;
+      return false;
     },
-    async jwt({ token, user }) {
-      return { ...token, ...user };
+    async jwt({ token, user, account }) {
+      if (account && user) {
+        return {
+          ...token,
+          ...user,
+          oauthId: user.id,
+          authType: account?.provider,
+        };
+      }
+
+      return token;
     },
     async session({ session, token }) {
       session.user = token as any;
