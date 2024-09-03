@@ -15,7 +15,10 @@ import { z } from 'zod';
 import { oauthSignUp } from '../api/sign-up';
 import { toast } from '@/shared/ui/use-toast';
 import { signIn } from 'next-auth/react';
-import { checkNicknameDuplication } from '../api/check-duplication';
+import {
+  checkEmailDuplication,
+  checkNicknameDuplication,
+} from '../api/check-duplication';
 import { useState } from 'react';
 import { Input } from '@/shared/ui/input';
 import { useValidationStore } from '../model/validation-store';
@@ -40,23 +43,32 @@ const formSchema = z.object({
 interface OAuthSignUpFormProps {
   oauthId: string;
   provider: string;
+  defaultEmail?: string;
+  defaultNickname?: string;
 }
 
 export const OAuthSignUpForm = ({
   oauthId,
   provider,
+  defaultEmail,
+  defaultNickname,
 }: OAuthSignUpFormProps) => {
   const [
     isEnabledCheckNicknameDuplication,
     setIsEnabledCheckNicknameDuplication,
-  ] = useState(false);
-  const { isValidNickname, setIsValidNickname } = useValidationStore();
+  ] = useState(defaultNickname ?? false);
+
+  const [isEnabledCheckEmailDuplication, setIsEnabledCheckEmailDuplication] =
+    useState(defaultEmail ?? false);
+
+  const { isValidNickname, setIsValidNickname, isValidEmail, setIsValidEmail } =
+    useValidationStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      nickname: '',
+      email: defaultEmail ?? '',
+      nickname: defaultNickname ?? '',
     },
   });
 
@@ -85,6 +97,25 @@ export const OAuthSignUpForm = ({
     }
   };
 
+  const handleCheckEmailDuplicationClick = async (email: string) => {
+    const result = await checkEmailDuplication(email);
+
+    if (result) {
+      toast({
+        variant: 'destructive',
+        title: '중복된 이메일',
+        description: '다른 이메일으로 변경 후 재시도 하세요.',
+      });
+    } else {
+      toast({
+        title: '사용 가능한 닉네임',
+        description: '현재 입력한 이메일으로 가입 가능해요.',
+      });
+      setIsEnabledCheckEmailDuplication(false);
+      setIsValidEmail(true);
+    }
+  };
+
   const handleCheckNicknameDuplicationClick = async (nickname: string) => {
     const result = await checkNicknameDuplication(nickname);
 
@@ -104,8 +135,25 @@ export const OAuthSignUpForm = ({
     }
   };
 
+  const handleEmailChange = () => {
+    if (z.string().min(1).email().safeParse(form.watch('email')).success) {
+      setIsEnabledCheckEmailDuplication(true);
+      setIsValidEmail(false);
+    } else {
+      setIsEnabledCheckEmailDuplication(false);
+      setIsValidEmail(false);
+    }
+  };
+
   const handleNicknameChange = () => {
-    if (form.watch('nickname')) {
+    if (
+      z
+        .string()
+        .min(2)
+        .max(10)
+        .regex(nicknameRegex)
+        .safeParse(form.watch('nickname')).success
+    ) {
       setIsEnabledCheckNicknameDuplication(true);
       setIsValidNickname(false);
     } else {
@@ -123,9 +171,20 @@ export const OAuthSignUpForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>이메일</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="이메일" {...field} />
-              </FormControl>
+              <div className="flex space-x-4">
+                <FormControl onChange={handleEmailChange}>
+                  <Input type="email" placeholder="이메일" {...field} />
+                </FormControl>
+                <Button
+                  type="button"
+                  variant={'outline'}
+                  className="font-bold"
+                  onClick={() => handleCheckEmailDuplicationClick(field.value)}
+                  disabled={!isEnabledCheckEmailDuplication}
+                >
+                  중복확인
+                </Button>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -137,14 +196,14 @@ export const OAuthSignUpForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>닉네임</FormLabel>
-              <div className="flex">
+              <div className="flex space-x-4">
                 <FormControl onChange={handleNicknameChange}>
                   <Input type="text" placeholder="닉네임" {...field} />
                 </FormControl>
                 <Button
                   type="button"
                   variant={'outline'}
-                  className="ml-4 font-bold"
+                  className="font-bold"
                   onClick={() =>
                     handleCheckNicknameDuplicationClick(field.value)
                   }
@@ -160,7 +219,7 @@ export const OAuthSignUpForm = ({
         <Button
           type="submit"
           className="w-full font-bold"
-          disabled={!isValidNickname}
+          disabled={!isValidNickname || !isValidEmail}
         >
           회원가입
         </Button>
