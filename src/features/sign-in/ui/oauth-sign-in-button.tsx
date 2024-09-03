@@ -25,7 +25,7 @@ export const OAuthSignInButton = ({
   const handleClick = async () => {
     await signIn(provider, {
       redirect: true,
-      callbackUrl: '/',
+      callbackUrl: '/sign-up/oauth',
     });
   };
 
