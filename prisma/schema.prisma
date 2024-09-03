@@ -35,12 +35,13 @@ model OAuthUser {
   oauthId         String   @unique
   nickname        String   @unique
   profileImageUrl String?
-  email           String
+  email           String   @unique
   provider        String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  @@index([oauthId, nickname])
+  @@index([oauthId, nickname, email])
+  @@index([nickname, email])
 }
 
 type BodyInfo {
