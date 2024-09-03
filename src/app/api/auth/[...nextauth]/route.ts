@@ -1,5 +1,4 @@
-import { NextApiRequest } from 'next';
-import NextAuth, { RequestInternal } from 'next-auth';
+import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import KakaoProvider from 'next-auth/providers/kakao';
 import NaverProvider from 'next-auth/providers/naver';
@@ -15,12 +14,7 @@ const handler = NextAuth({
         password: { label: '비밀번호', type: 'password' },
       },
 
-      async authorize(
-        credentials: Record<'email' | 'password', any> | undefined,
-        req:
-          | Pick<RequestInternal, 'body' | 'query' | 'headers' | 'method'>
-          | NextApiRequest
-      ) {
+      async authorize(credentials, req) {
         const res = await fetch(`${process.env.NEXTAUTH_URL}/api/user/signin`, {
           method: 'POST',
           body: JSON.stringify({
@@ -77,20 +71,23 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
-      const apiUrl = `${process.env.NEXTAUTH_URL}/api/user/signin/oauth?oauthId=${user.id}&provider=${account?.provider}`;
+    async signIn({ user, account }) {
+      if (account && account.provider !== 'credencials') {
+        const apiUrl = `${process.env.NEXTAUTH_URL}/api/user/signin/oauth?oauthId=${user.id}&provider=${account?.provider}`;
 
-      const response = await fetch(apiUrl);
+        const response = await fetch(apiUrl);
 
-      if (!response.ok) {
-        throw new Error(`API call failed: ${response.status}`);
-      }
+        if (!response.ok) {
+          throw new Error(`API call failed: ${response.status}`);
+        }
 
-      const existedUser = await response.json();
+        const existedUser = await response.json();
 
-      if (existedUser) {
-        if (!existedUser.nickname && !existedUser.email) {
-          return `/sign-up/oauth/${account?.provider}/${user.id}`;
+        if (!existedUser || (!existedUser.nickname && !existedUser.email)) {
+          user.needsSignUp = true;
+          user.oauthProvider = account?.provider;
+          user.oauthId = user.id;
+          return true;
         } else {
           user.email = existedUser.email;
           user.nickname = existedUser.nickname;
@@ -98,26 +95,37 @@ const handler = NextAuth({
         }
       }
 
-      if (!existedUser) {
-        return `/sign-up/oauth/${account?.provider}/${user.id}`;
-      }
-
-      return false;
+      return true;
     },
     async jwt({ token, user, account }) {
-      if (account && user) {
-        return {
-          ...token,
-          ...user,
-          oauthId: user.id,
-          authType: account?.provider,
-        };
+      if (user && account) {
+        if (!token.user) {
+          token.user = {};
+        }
+
+        token.user.id = user.id;
+        token.user.email = user.email;
+        token.user.nickname = user.nickname;
+        token.user.image = user.image;
+
+        if (user.needsSignUp) {
+          token.user.needsSignUp = user.needsSignUp;
+          token.user.oauthProvider = user.oauthProvider;
+          token.user.oauthId = user.oauthId;
+        }
+
+        token.accessToken = account.access_token;
       }
 
       return token;
     },
     async session({ session, token }) {
-      session.user = token as any;
+      if (token.user) {
+        session.user = { ...token.user };
+      }
+      if (token.accessToken) {
+        session.accessToken = token.accessToken;
+      }
       return session;
     },
   },
