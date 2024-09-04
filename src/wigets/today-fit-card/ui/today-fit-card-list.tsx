@@ -30,11 +30,7 @@ export const TodayFitCardList = () => {
       <section className="grid grid-cols-3 grid-flow-row gap-4 mb-5 max-xl:grid-cols-2 max-lg:flex max-lg:flex-col">
         {posts?.pages.map((page) =>
           page.posts.map((post) => (
-            <TodayFitCard
-              key={post._id as string}
-              postId={post._id as string}
-              {...post}
-            />
+            <TodayFitCard key={post.id} postId={post.id} {...post} />
           ))
         )}
       </section>
