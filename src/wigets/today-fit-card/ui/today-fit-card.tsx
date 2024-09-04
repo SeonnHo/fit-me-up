@@ -14,15 +14,19 @@ import { FaRegComment } from 'react-icons/fa';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
 import { useCommentModalStore } from '@/shared/model/comment-modal-store';
+import { Comment, Like } from '@prisma/client';
 
 interface TodayFitCardProps {
   postId: string;
   category: string;
-  createAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
   content: string;
-  images: string[];
-  commentCount: number;
-  likeCount: number;
+  imageUrls: string[];
+  _count: {
+    comments: number;
+    likes: number;
+  };
   fashionInfo: {
     section: string;
     info: string;
@@ -30,27 +34,27 @@ interface TodayFitCardProps {
   }[];
   bodyInfo: {
     gender: string;
-    height: number;
-    weight: number;
-  };
-  user: {
-    _id: string;
+    height: string;
+    weight: string;
+  } | null;
+  authorId: string;
+  author: {
     nickname: string;
-    image: string;
+    profileImageUrl: string | null;
   };
 }
 
 export const TodayFitCard = ({
   postId,
   category,
-  createAt,
+  createdAt,
   content,
-  images,
-  commentCount,
-  likeCount,
+  imageUrls,
+  _count,
   fashionInfo,
   bodyInfo,
-  user,
+  authorId,
+  author,
 }: TodayFitCardProps) => {
   const [isLike, setIsLike] = useState(false);
   const { onOpen } = useCommentModalStore();
@@ -60,47 +64,45 @@ export const TodayFitCard = ({
       <CardHeader className="p-3 flex flex-row justify-between items-center space-y-0">
         <div className="flex space-x-2 items-center">
           <Avatar>
-            <AvatarImage src={user.image} alt="프로필 이미지" />
+            <AvatarImage src={author.profileImageUrl!} alt="프로필 이미지" />
             <AvatarFallback></AvatarFallback>
           </Avatar>
           <CardTitle className="text-base line-clamp-1">
-            {user.nickname}
+            {author.nickname}
           </CardTitle>
         </div>
-        <CardDescription>{dateFormatter(createAt)}</CardDescription>
+        <CardDescription>{dateFormatter(createdAt)}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-0">
         <div className="relative w-full h-[500px]">
           <TodayFitImage
-            image={
-              process.env.NEXT_PUBLIC_AWS_CLOUD_FRONT_TODAY_FIT_URL + images[0]
-            }
+            image={process.env.NEXT_PUBLIC_TODAY_FIT_URL + imageUrls[0]}
             fashionInfo={fashionInfo}
-            bodyInfo={bodyInfo}
+            bodyInfo={bodyInfo!}
           />
         </div>
         <div className="flex px-3">
           <div className="flex items-center space-x-1">
             <PostLikeButton
-              userId={user._id}
+              userId={authorId}
               postId={postId}
               category={category}
               isLike={isLike}
               callbackFn={() => setIsLike((prev) => !prev)}
             />
-            <p className="text-sm">{likeCount}</p>
+            <p className="text-sm">{_count.likes}</p>
           </div>
           <div className="flex items-center space-x-1 ml-4">
             <FaRegComment
               className="size-6 cursor-pointer"
               onClick={() => onOpen(postId, category)}
             />
-            <p className="text-sm">{commentCount}</p>
+            <p className="text-sm">{_count.comments}</p>
           </div>
         </div>
         <div className="flex px-3 pb-3">
           <p className="w-full line-clamp-3 text-sm break-all">
-            <b>{user.nickname}</b> {content}
+            <b>{author.nickname}</b> {content}
           </p>
         </div>
       </CardContent>
