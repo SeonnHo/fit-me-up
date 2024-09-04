@@ -42,8 +42,12 @@ export const DesktopHeader = ({
           <div className="flex items-center">
             <div className="flex items-center mx-4 space-x-2 cursor-pointer">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/profile_icon.png" alt="프로필 이미지" />
-                <AvatarFallback></AvatarFallback>
+                <AvatarImage src={session.user.image} alt="프로필 이미지" />
+                <AvatarFallback>
+                  {session.user.nickname
+                    ? session.user.nickname.slice(0, 1)
+                    : '?'}
+                </AvatarFallback>
               </Avatar>
               <div className="text-sm font-bold">{session.user.nickname}</div>
             </div>

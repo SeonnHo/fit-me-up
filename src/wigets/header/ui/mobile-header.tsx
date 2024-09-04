@@ -52,8 +52,12 @@ export const MobileHeader = ({
             <div className="flex flex-col">
               <SheetHeader className="items-center mt-4">
                 <Avatar className="h-16 w-16">
-                  <AvatarImage src="/profile_icon.png" alt="프로필 이미지" />
-                  <AvatarFallback></AvatarFallback>
+                  <AvatarImage src={session?.user.image} alt="프로필 이미지" />
+                  <AvatarFallback>
+                    {session && session.user.nickname
+                      ? session.user.nickname.slice(0, 1)
+                      : '?'}
+                  </AvatarFallback>
                 </Avatar>
                 <SheetTitle className="text-base font-bold">
                   {session && session.user
