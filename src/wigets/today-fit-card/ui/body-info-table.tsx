@@ -1,8 +1,8 @@
 interface BodyInfoTableProps {
   bodyInfo: {
     gender: string;
-    height: number;
-    weight: number;
+    height: string;
+    weight: string;
   };
 }
 
@@ -29,10 +29,10 @@ export const BodyInfoTable = ({ bodyInfo }: BodyInfoTableProps) => {
             {translateGender(bodyInfo.gender)}
           </td>
           <td className="border-r text-sm p-2">
-            {bodyInfo.height === 0 ? '미기재' : bodyInfo.height}
+            {bodyInfo.height ? bodyInfo.height : '미기재'}
           </td>
           <td className="text-sm p-2">
-            {bodyInfo.weight === 0 ? '미기재' : bodyInfo.weight}
+            {bodyInfo.weight ? bodyInfo.weight : '미기재'}
           </td>
         </tr>
       </tbody>
