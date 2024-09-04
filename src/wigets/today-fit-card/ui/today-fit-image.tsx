@@ -16,8 +16,8 @@ interface TodayFitImageProps {
   }[];
   bodyInfo?: {
     gender: string;
-    height: number;
-    weight: number;
+    height: string;
+    weight: string;
   };
 }
 
