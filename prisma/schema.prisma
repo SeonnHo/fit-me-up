@@ -18,7 +18,9 @@ model User {
   nickname        String   @unique
   profileImageUrl String?
   email           String   @unique
-  password        String
+  password        String?
+  oauthId         String?  @unique
+  provider        String?  @unique
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -28,26 +30,13 @@ model User {
   mentionedIn Comment[] @relation("MentionedUsers")
 
   @@index([email, nickname])
-}
-
-model OAuthUser {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  oauthId         String   @unique
-  nickname        String   @unique
-  profileImageUrl String?
-  email           String   @unique
-  provider        String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([oauthId, nickname, email])
-  @@index([nickname, email])
+  @@index([oauthId, provider])
 }
 
 type BodyInfo {
   gender String
-  height Int
-  weight Int
+  height String
+  weight String
 }
 
 type FashionInfo {
@@ -91,8 +80,8 @@ model Comment {
   parentId String?  @db.ObjectId
   parent   Comment? @relation("CommentToComment", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  mentionedUserIds String? @db.ObjectId
-  mentionedUsers   User?   @relation("MentionedUsers", fields: [mentionedUserIds], references: [id])
+  mentionedUserId String? @db.ObjectId
+  mentionedUser   User?   @relation("MentionedUsers", fields: [mentionedUserId], references: [id])
 
   replies Comment[] @relation("CommentToComment")
 
