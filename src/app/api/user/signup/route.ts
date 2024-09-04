@@ -1,5 +1,4 @@
-import { User } from '@/entities/user';
-import { connectDB } from '@/shared/api/database';
+import prisma from '@/shared/lib/db';
 import * as bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
 
@@ -7,29 +6,29 @@ interface RequestBody {
   email: string;
   password: string;
   nickname: string;
-}
-
-interface UserWithPassword extends User {
-  password: string;
+  image?: string;
 }
 
 export async function POST(request: Request) {
-  const database = connectDB.db('fit_me_up');
-  const usersCollection =
-    database.collection<Partial<UserWithPassword>>('users');
-
   const body: RequestBody = await request.json();
-  const TYPE = 'credentials';
 
-  const saltRounds = 10;
-  const salt = await bcrypt.genSalt(saltRounds);
+  try {
+    const saltRounds = 10;
+    const salt = await bcrypt.genSalt(saltRounds);
 
-  const user = await usersCollection.insertOne({
-    email: body.email,
-    password: await bcrypt.hash(body.password, salt),
-    nickname: body.nickname,
-    type: TYPE,
-  });
+    const createdUser = await prisma.user.create({
+      data: {
+        email: body.email,
+        password: await bcrypt.hash(body.password, salt),
+        profileImageUrl: body.image
+          ? process.env.PROFILE_URL + body.image
+          : process.env.DEFAULT_PROFILE_URL,
+        nickname: body.nickname,
+      },
+    });
 
-  return NextResponse.json(user);
+    return NextResponse.json(createdUser);
+  } catch (error) {
+    return NextResponse.json(error, { status: 500 });
+  }
 }

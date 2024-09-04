@@ -1,33 +1,29 @@
-import { ObjectId } from 'mongodb';
-import { connectDB } from '@/shared/api/database';
 import { NextRequest, NextResponse } from 'next/server';
-import { getNextSequence } from '@/shared/api/get-next-sequence';
-import { Post } from '@/entities/post';
-import { Comment } from '@/entities/comment';
+import prisma from '@/shared/lib/db';
 
 interface RequestBody {
   userId: string;
   postId: string;
   content: string;
-  _id?: string;
-  mentionedUser?: string;
-  mentioningUser?: string;
+  commentId?: string;
+  mentionedUserId?: string;
+  mentioningUserId?: string;
 }
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const postId = searchParams.get('postId');
 
-  const database = connectDB.db('fit_me_up');
-  const commentsCollection = database.collection<Comment>('comments');
-
   try {
     if (postId) {
-      const comments = await commentsCollection
-        .find<Comment>({
-          postId: { $eq: postId },
-        })
-        .toArray();
+      const comments = await prisma.comment.findMany({
+        where: {
+          postId: postId,
+        },
+        orderBy: {
+          id: 'asc',
+        },
+      });
       return NextResponse.json(comments);
     } else {
       throw new Error('postId 파라미터가 없습니다.');
@@ -38,54 +34,57 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const database = connectDB.db('fit_me_up');
-  const commentsCollection = database.collection<Comment>('comments');
-  const postsCollection = database.collection<Post>('posts');
-
-  const date = new Date();
-
   const body: RequestBody = await request.json();
 
   try {
-    if (body.mentioningUser) {
-      const replySequence = await getNextSequence(body._id!);
-      const reply = await commentsCollection.updateOne(
-        { _id: new ObjectId(body._id) },
-        {
-          $push: {
-            replies: {
-              id: replySequence,
-              userId: body.userId,
-              postId: body.postId,
-              content: body.content,
-              createAt: date,
-              mentionedUser: body.mentionedUser!,
-              mentioningUser: body.mentioningUser!,
-            },
-          },
-        }
-      );
-      const postCommentCount = await postsCollection.findOneAndUpdate(
-        { _id: new ObjectId(body.postId) },
-        { $inc: { commentCount: 1 } }
-      );
-      console.log(postCommentCount);
+    if (body.mentioningUserId) {
+      // const reply = await commentsCollection.updateOne(
+      //   { _id: new ObjectId(body._id) },
+      //   {
+      //     $push: {
+      //       replies: {
+      //         id: replySequence,
+      //         userId: body.userId,
+      //         postId: body.postId,
+      //         content: body.content,
+      //         createAt: date,
+      //         mentionedUser: body.mentionedUser!,
+      //         mentioningUser: body.mentioningUser!,
+      //       },
+      //     },
+      //   }
+      // );
 
-      return NextResponse.json(reply);
-    } else {
-      const comment = await commentsCollection.insertOne({
-        userId: body.userId,
-        postId: body.postId,
-        content: body.content,
-        createAt: date,
+      const createdReply = await prisma.comment.create({
+        data: {
+          content: body.content,
+          author: { connect: { id: body.userId } },
+          post: { connect: { id: body.postId } },
+          parent: { connect: { id: body.commentId } },
+          mentionedUser: body.mentionedUserId
+            ? { connect: { id: body.mentionedUserId } }
+            : undefined,
+        },
       });
-      const postCommentCount = await postsCollection.findOneAndUpdate(
-        { _id: new ObjectId(body.postId) },
-        { $inc: { commentCount: 1 } }
-      );
-      console.log(postCommentCount);
 
-      return NextResponse.json(comment);
+      return NextResponse.json(createdReply);
+    } else {
+      // const comment = await commentsCollection.insertOne({
+      //   userId: body.userId,
+      //   postId: body.postId,
+      //   content: body.content,
+      //   createAt: date,
+      // });
+
+      const createdComment = await prisma.comment.create({
+        data: {
+          content: body.content,
+          author: { connect: { id: body.userId } },
+          post: { connect: { id: body.postId } },
+        },
+      });
+
+      return NextResponse.json(createdComment);
     }
   } catch (error) {
     throw new Error(error as string);

@@ -6,19 +6,23 @@ interface RequestBody {
   email: string;
   nickname: string;
   provider: string;
+  image?: string;
 }
 
 export async function POST(reqeust: NextRequest) {
-  const { oauthId, email, nickname, provider }: RequestBody =
+  const { oauthId, email, nickname, provider, image }: RequestBody =
     await reqeust.json();
 
   try {
-    const createdOAuthUser = await prisma.oAuthUser.create({
+    const createdOAuthUser = await prisma.user.create({
       data: {
         oauthId,
         email,
         nickname,
         provider,
+        profileImageUrl: image
+          ? process.env.PROFILE_URL + image
+          : process.env.DEFAULT_PROFILE_URL,
       },
     });
 

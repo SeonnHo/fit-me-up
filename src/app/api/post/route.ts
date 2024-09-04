@@ -1,10 +1,7 @@
-import { connectDB } from '@/shared/api/database';
 import { NextRequest, NextResponse } from 'next/server';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { InsertOneResult } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
-import { Post } from '@/entities/post';
-import { User } from '@/entities/user';
+import prisma from '@/shared/lib/db';
 
 interface RequsetBody {
   category: string;
@@ -13,8 +10,8 @@ interface RequsetBody {
   userId: string;
   bodyInfo?: {
     gender: string;
-    height: number;
-    weight: number;
+    height: string;
+    weight: string;
   };
   fashionInfo?: {
     section: string;
@@ -26,13 +23,10 @@ interface RequsetBody {
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  const searchParams = request.nextUrl.searchParams;
   const category = searchParams.get('category');
   const pageParam = searchParams.get('page');
   const limit = searchParams.get('limit');
-
-  const database = connectDB.db('fit_me_up');
-  const postsCollection = database.collection<Post>('posts');
 
   try {
     if (!category) {
@@ -47,52 +41,47 @@ export async function GET(request: NextRequest) {
       throw new Error('"limit" does not have a value.');
     }
 
-    const postList = await postsCollection
-      .find({ category })
-      .skip((Number(pageParam) - 1) * Number(limit))
-      .limit(Number(limit))
-      .sort({ _id: -1 })
-      .toArray();
-
-    const addNicknamePosts = await Promise.all(
-      postList.map(async (post) => {
-        const usersCollection = database.collection<User>('users');
-
-        const user = await usersCollection.findOne({
-          _id: post.userId,
-        });
-
-        if (!user) {
-          throw new Error('User not found.');
-        }
-
-        return {
-          ...post,
-          user: { _id: user._id, nickname: user.nickname, image: user.image },
-        };
-      })
-    );
+    const posts = await prisma.post.findMany({
+      where: {
+        category: category,
+      },
+      skip: (Number(pageParam) - 1) * Number(limit),
+      take: Number(limit),
+      orderBy: {
+        id: 'desc',
+      },
+      include: {
+        author: {
+          select: {
+            nickname: true,
+            profileImageUrl: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+            likes: true,
+          },
+        },
+      },
+    });
 
     return NextResponse.json({
-      posts: addNicknamePosts,
+      posts: posts,
       page: Number(pageParam),
-      next: postList.length < Number(limit) ? null : true,
+      next: posts.length < Number(limit) ? null : true,
     });
   } catch (error) {
-    return NextResponse.json(error);
+    return NextResponse.json(error, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
-  const database = connectDB.db('fit_me_up');
-  const postsCollection = database.collection('posts');
-
   const formData = await request.formData();
 
   try {
-    const imageList: string[] = [];
+    const imageUrlList: string[] = [];
     const bodyEntry = formData.get('body');
-    let result: InsertOneResult | undefined;
 
     if (bodyEntry && bodyEntry instanceof File) {
       const text = await bodyEntry.text();
@@ -117,20 +106,44 @@ export async function POST(request: NextRequest) {
             };
             const command = new PutObjectCommand(params);
             await s3Client.send(command);
-            imageList.push(uuid + fileExtension);
+            imageUrlList.push(uuid + fileExtension);
           }
         }
       }
 
-      result = await postsCollection.insertOne({
-        ...body,
-        createAt: new Date(),
-        likeCount: 0,
-        commentCount: 0,
-        images: imageList,
+      console.log('imageUrlList: ', imageUrlList);
+      console.log('body: ', body);
+
+      if (body.category === 'todayFit') {
+        const result = await prisma.post.create({
+          data: {
+            category: body.category,
+            title: null,
+            content: body.content,
+            imageUrls: imageUrlList,
+            bodyInfo: body.bodyInfo,
+            fashionInfo: body.fashionInfo,
+            author: { connect: { id: body.userId } },
+          },
+        });
+
+        console.log('result: ', result);
+
+        return NextResponse.json(result);
+      }
+
+      const result = await prisma.post.create({
+        data: {
+          category: body.category,
+          title: body.title,
+          content: body.content,
+          imageUrls: imageUrlList,
+          author: { connect: { id: body.userId } },
+        },
       });
+
+      return NextResponse.json(result);
     }
-    return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(error, { status: 500 });
   }

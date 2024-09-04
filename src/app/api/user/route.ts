@@ -1,23 +1,29 @@
-import { User } from '@/entities/user';
-import { connectDB } from '@/shared/api/database';
+import prisma from '@/shared/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
 
-  const database = connectDB.db('fit_me_up');
-  const usersCollection = database.collection<User>('users');
-
   try {
     if (userId) {
-      const result = await usersCollection.findOne<User>({ _id: userId });
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
 
-      return NextResponse.json(result);
+      if (user) {
+        const { password, ...userWithoutPassword } = user;
+
+        return NextResponse.json(userWithoutPassword);
+      } else {
+        throw new Error('user를 찾을 수 없습니다.');
+      }
     } else {
       throw new Error('userId 파라미터가 없습니다.');
     }
   } catch (error) {
-    return NextResponse.json(error);
+    return NextResponse.json(error, { status: 500 });
   }
 }

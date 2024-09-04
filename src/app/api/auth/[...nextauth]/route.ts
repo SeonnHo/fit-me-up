@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import KakaoProvider from 'next-auth/providers/kakao';
 import NaverProvider from 'next-auth/providers/naver';
 import GoogleProvider from 'next-auth/providers/google';
+import { User } from '@prisma/client';
 
 const handler = NextAuth({
   providers: [
@@ -73,24 +74,39 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ user, account }) {
       if (account && account.provider !== 'credencials') {
-        const apiUrl = `${process.env.NEXTAUTH_URL}/api/user/signin/oauth?oauthId=${user.id}&provider=${account?.provider}`;
+        const apiUrl = `${process.env.NEXTAUTH_URL}/api/user/signin/oauth`;
 
-        const response = await fetch(apiUrl);
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            oauthId: user.id,
+            provider: account.provider,
+          }),
+        });
 
         if (!response.ok) {
           throw new Error(`API call failed: ${response.status}`);
         }
 
-        const existedUser = await response.json();
+        const existedUser: User = await response.json();
 
         if (!existedUser || (!existedUser.nickname && !existedUser.email)) {
+          user.email = undefined;
+          user.image = process.env.DEFAULT_PROFILE_URL;
+          user.nickname = undefined;
           user.needsSignUp = true;
           user.oauthProvider = account?.provider;
           user.oauthId = user.id;
           return true;
         } else {
+          user.id = existedUser.id;
           user.email = existedUser.email;
           user.nickname = existedUser.nickname;
+          user.image = existedUser.profileImageUrl!;
+          user.needsSignUp = false;
+          user.oauthId = existedUser.oauthId ?? undefined;
+          user.oauthProvider = existedUser.provider ?? undefined;
           return true;
         }
       }

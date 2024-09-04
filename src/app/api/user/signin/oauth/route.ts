@@ -1,14 +1,17 @@
 import prisma from '@/shared/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const oauthId = searchParams.get('oauthId');
-  const provider = searchParams.get('provider');
+interface RequestBody {
+  oauthId: string;
+  provider: string;
+}
+
+export async function POST(request: NextRequest) {
+  const { oauthId, provider }: RequestBody = await request.json();
 
   try {
     if (oauthId && provider) {
-      const oauthUser = await prisma.oAuthUser.findUnique({
+      const oauthUser = await prisma.user.findUnique({
         where: {
           oauthId,
           provider,

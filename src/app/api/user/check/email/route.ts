@@ -1,20 +1,20 @@
-import { User } from '@/entities/user';
-import { connectDB } from '@/shared/api/database';
+import prisma from '@/shared/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
-  const database = connectDB.db('fit_me_up');
-  const usersCollection = database.collection<User>('users');
-
   const email: string = await request.json();
 
-  const user = await usersCollection.findOne({
-    email: email,
-  });
+  try {
+    const existedUser = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
 
-  if (user) {
-    return NextResponse.json(true);
+    if (existedUser) return NextResponse.json(true);
+
+    return NextResponse.json(false);
+  } catch (error) {
+    return NextResponse.json(error, { status: 500 });
   }
-
-  return NextResponse.json(false);
 }
