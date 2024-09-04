@@ -54,14 +54,6 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
   });
 
   const handleSubmit = () => {
-    console.log('category: ' + form.watch('category'));
-    console.log('title: ' + form.watch('title'));
-    console.log('content: ' + form.watch('content'));
-    console.log('bodyInfo: ' + form.watch('bodyInfo'));
-    console.log('fashionInfo: ' + form.watch('fashionInfo'));
-    console.log('files: ' + files);
-    console.log('userId: ' + userId);
-
     setIsSubmitting(true);
     mutate(
       {
@@ -73,10 +65,10 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
         files: files,
         userId,
       },
-
       {
         onSuccess: (data) => {
-          if (data.acknowledged) {
+          if (data) {
+            console.log(data);
             toast({
               title: '게시물 등록 성공',
               description:
