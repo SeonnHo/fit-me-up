@@ -6,7 +6,7 @@ interface UsePostMutaionProps {
   title: string | undefined;
   content: string;
   userId: string;
-  bodyInfo: {
+  bodyInfo?: {
     gender?: 'male' | 'female';
     height?: number;
     weight?: number;
