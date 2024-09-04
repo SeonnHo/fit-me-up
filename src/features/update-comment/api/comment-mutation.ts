@@ -5,8 +5,8 @@ interface UseCommentMutationProps {
   userId: string;
   postId: string;
   content: string;
-  mentionedUser: string;
-  mentioningUser: string;
+  mentionedUserId: string;
+  mentioningUserId: string;
   category: string;
 }
 
@@ -18,19 +18,19 @@ export const useCommentMutation = () => {
     userId,
     postId,
     content,
-    mentionedUser,
-    mentioningUser,
+    mentionedUserId,
+    mentioningUserId,
   }: UseCommentMutationProps) => {
     const res = await fetch('/api/comment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        _id: commentId,
+        commentId: commentId,
         userId: userId,
         postId: postId,
         content: content,
-        mentionedUser,
-        mentioningUser,
+        mentionedUserId,
+        mentioningUserId,
       }),
     });
 
