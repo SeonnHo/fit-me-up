@@ -1,13 +1,32 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { TodayFitPost } from '../lib/post-interface';
+import { Prisma } from '@prisma/client';
 
 interface UsePostInfiniteQueryProps {
   limit: number;
   category: string;
 }
 
-interface TodayFitPostResponse {
-  posts: Required<TodayFitPost>[];
+const postWithAuthor = Prisma.validator<Prisma.PostDefaultArgs>()({
+  include: {
+    author: {
+      select: {
+        nickname: true,
+        profileImageUrl: true,
+      },
+    },
+    _count: {
+      select: {
+        comments: true,
+        likes: true,
+      },
+    },
+  },
+});
+
+type PostWithAuthor = Prisma.PostGetPayload<typeof postWithAuthor>;
+
+interface UsePostInfiniteQueryResponse {
+  posts: Required<PostWithAuthor>[];
   page: number;
   next: boolean | null;
 }
@@ -33,7 +52,7 @@ export const usePostInfiniteQuery = ({
     isFetching,
     hasNextPage,
     fetchNextPage,
-  } = useInfiniteQuery<TodayFitPostResponse>({
+  } = useInfiniteQuery<UsePostInfiniteQueryResponse>({
     queryKey: ['posts', category],
     queryFn: fetchPost,
     initialPageParam: 1,
