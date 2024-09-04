@@ -1,9 +1,9 @@
+import { Comment } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
-import { Comment } from '../lib/comment-interface';
 
 export const useCommentQuery = (postId: string) => {
   const fetchComments = async () => {
-    const res = await fetch(`/api/comment?boardId=${postId}`, {
+    const res = await fetch(`/api/comment?postId=${postId}`, {
       method: 'GET',
     });
 
