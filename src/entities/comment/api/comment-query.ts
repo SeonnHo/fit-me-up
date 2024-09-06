@@ -1,5 +1,17 @@
-import { Comment } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
+
+const commentWithAuthor = Prisma.validator<Prisma.CommentDefaultArgs>()({
+  include: {
+    author: {
+      select: {
+        nickname: true,
+      },
+    },
+  },
+});
+
+type CommentWithAuthor = Prisma.CommentGetPayload<typeof commentWithAuthor>;
 
 export const useCommentQuery = (postId: string) => {
   const fetchComments = async () => {
@@ -14,7 +26,7 @@ export const useCommentQuery = (postId: string) => {
     data: comments,
     isLoading,
     isFetching,
-  } = useQuery<Comment[]>({
+  } = useQuery<CommentWithAuthor[]>({
     queryKey: ['comments', postId],
     queryFn: fetchComments,
   });
