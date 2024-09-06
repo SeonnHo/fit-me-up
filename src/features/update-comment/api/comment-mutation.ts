@@ -42,7 +42,7 @@ export const useCommentMutation = () => {
     onSuccess: (_, { postId, category }) => {
       queryClient.invalidateQueries({ queryKey: ['comments', postId] });
       queryClient.invalidateQueries({
-        queryKey: ['posts', category, postId],
+        queryKey: ['posts', category],
       });
     },
   });
