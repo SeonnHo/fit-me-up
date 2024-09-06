@@ -11,10 +11,10 @@ import { TodayFitImage } from './today-fit-image';
 import { dateFormatter } from '@/shared/lib/date-formatter';
 import { PostLikeButton } from '@/features/like-post';
 import { FaRegComment } from 'react-icons/fa';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
 import { useCommentModalStore } from '@/shared/model/comment-modal-store';
-import { Comment, Like } from '@prisma/client';
+import { useSession } from 'next-auth/react';
 
 interface TodayFitCardProps {
   postId: string;
@@ -23,6 +23,9 @@ interface TodayFitCardProps {
   updatedAt: Date;
   content: string;
   imageUrls: string[];
+  likes: {
+    userId: string;
+  }[];
   _count: {
     comments: number;
     likes: number;
@@ -50,14 +53,22 @@ export const TodayFitCard = ({
   createdAt,
   content,
   imageUrls,
+  likes,
   _count,
   fashionInfo,
   bodyInfo,
   authorId,
   author,
 }: TodayFitCardProps) => {
+  const { data: session } = useSession();
   const [isLike, setIsLike] = useState(false);
   const { onOpen } = useCommentModalStore();
+
+  useEffect(() => {
+    if (session && likes.some((value) => session.user.id === value.userId)) {
+      setIsLike(true);
+    }
+  }, [likes, session]);
 
   return (
     <Card className="w-[400px] max-sm:w-full max-sm:rounded-none max-sm:border-y max-sm:border-x-0">
