@@ -23,6 +23,13 @@ export async function GET(request: NextRequest) {
         orderBy: {
           id: 'asc',
         },
+        include: {
+          author: {
+            select: {
+              nickname: true,
+            },
+          },
+        },
       });
       return NextResponse.json(comments);
     } else {
@@ -38,23 +45,6 @@ export async function POST(request: NextRequest) {
 
   try {
     if (body.mentioningUserId) {
-      // const reply = await commentsCollection.updateOne(
-      //   { _id: new ObjectId(body._id) },
-      //   {
-      //     $push: {
-      //       replies: {
-      //         id: replySequence,
-      //         userId: body.userId,
-      //         postId: body.postId,
-      //         content: body.content,
-      //         createAt: date,
-      //         mentionedUser: body.mentionedUser!,
-      //         mentioningUser: body.mentioningUser!,
-      //       },
-      //     },
-      //   }
-      // );
-
       const createdReply = await prisma.comment.create({
         data: {
           content: body.content,
@@ -65,22 +55,29 @@ export async function POST(request: NextRequest) {
             ? { connect: { id: body.mentionedUserId } }
             : undefined,
         },
+        include: {
+          author: {
+            select: {
+              nickname: true,
+            },
+          },
+        },
       });
 
       return NextResponse.json(createdReply);
     } else {
-      // const comment = await commentsCollection.insertOne({
-      //   userId: body.userId,
-      //   postId: body.postId,
-      //   content: body.content,
-      //   createAt: date,
-      // });
-
       const createdComment = await prisma.comment.create({
         data: {
           content: body.content,
           author: { connect: { id: body.userId } },
           post: { connect: { id: body.postId } },
+        },
+        include: {
+          author: {
+            select: {
+              nickname: true,
+            },
+          },
         },
       });
 
