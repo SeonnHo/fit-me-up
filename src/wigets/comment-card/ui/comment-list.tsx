@@ -6,10 +6,21 @@ import { useCommentQuery } from '@/entities/comment';
 import { SkeletonCommentItem } from './skeleton-comment-item';
 import { Session } from 'next-auth';
 import { useCommentModalStore } from '@/shared/model/comment-modal-store';
+import { Comment, Prisma } from '@prisma/client';
 
 interface CommentListProps {
   session: Session | null;
 }
+
+type CommentWithAuthor = Prisma.CommentGetPayload<{
+  include: {
+    author: {
+      select: {
+        nickname: true;
+      };
+    };
+  };
+}>;
 
 export const CommentList = ({ session }: CommentListProps) => {
   const { postId } = useCommentModalStore();
@@ -23,36 +34,58 @@ export const CommentList = ({ session }: CommentListProps) => {
     );
   }
 
+  const organizeComments = (comments: CommentWithAuthor[]) => {
+    const rootComments: CommentWithAuthor[] = [];
+    const replyComments: CommentWithAuthor[] = [];
+
+    comments.forEach((comment) => {
+      if (comment.parentId) {
+        replyComments.push(comment);
+      } else {
+        rootComments.push(comment);
+      }
+    });
+
+    return { rootComments, replyComments };
+  };
+
+  const { rootComments, replyComments } = organizeComments(comments || []);
+
+  const renderCommentThread = (rootComment: CommentWithAuthor) => {
+    const replies = replyComments.filter(
+      (reply) => reply.parentId === rootComment.id
+    );
+
+    return (
+      <React.Fragment key={rootComment.id}>
+        <CommentItem
+          commentId={rootComment.id}
+          content={rootComment.content}
+          authorId={rootComment.authorId}
+          createdAt={rootComment.createdAt}
+          session={session}
+        />
+        {replies.map((reply) => (
+          <CommentItem
+            key={reply.id}
+            className="pl-6"
+            commentId={rootComment.id}
+            content={reply.content}
+            authorId={reply.authorId}
+            createdAt={reply.createdAt}
+            mentionedUserId={reply.mentionedUserId || undefined}
+            mentionedUserNickname={reply.author.nickname || undefined}
+            session={session}
+          />
+        ))}
+      </React.Fragment>
+    );
+  };
+
   return (
     <ul className="overflow-scroll">
-      {comments && comments.length > 0 ? (
-        comments.map((comment) => (
-          <React.Fragment key={comment._id as string}>
-            <CommentItem
-              commentId={comment._id as string}
-              content={comment.content}
-              userId={comment.userId}
-              createAt={comment.createAt}
-              session={session}
-            />
-            {comment.replies && (
-              <ul className="">
-                {comment.replies.map((reply) => (
-                  <CommentItem
-                    className="first:border-t-0 pl-6"
-                    key={reply.id}
-                    commentId={comment._id as string}
-                    content={reply.content}
-                    userId={reply.userId}
-                    createAt={reply.createAt}
-                    mentionedUser={reply.mentionedUser}
-                    session={session}
-                  />
-                ))}
-              </ul>
-            )}
-          </React.Fragment>
-        ))
+      {rootComments.length > 0 ? (
+        rootComments.map(renderCommentThread)
       ) : (
         <li className="border-t font-bold text-sm text-center py-2">
           등록된 댓글이 없습니다.
