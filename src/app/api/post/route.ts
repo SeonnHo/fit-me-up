@@ -57,6 +57,11 @@ export async function GET(request: NextRequest) {
             profileImageUrl: true,
           },
         },
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
         _count: {
           select: {
             comments: true,
