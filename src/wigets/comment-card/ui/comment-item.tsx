@@ -15,23 +15,25 @@ import {
 interface CommentItemProps {
   className?: string;
   commentId: string;
-  userId: string;
+  authorId: string;
   content: string;
-  createAt: Date;
-  mentionedUser?: string;
+  createdAt: Date;
+  mentionedUserId?: string | null;
+  mentionedUserNickname?: string;
   session: Session | null;
 }
 
 export const CommentItem = ({
   className,
   commentId,
-  userId,
+  authorId,
   content,
-  createAt,
-  mentionedUser,
+  createdAt,
+  mentionedUserId,
+  mentionedUserNickname,
   session,
 }: CommentItemProps) => {
-  const { user, isLoading, isFetching } = useUserQuery(userId);
+  const { user, isLoading, isFetching } = useUserQuery(authorId);
 
   if (isLoading || isFetching) {
     return <SkeletonCommentItem />;
@@ -45,14 +47,14 @@ export const CommentItem = ({
       )}
     >
       <Avatar>
-        <AvatarImage src={String(user?.image)} alt="프로필 이미지" />
+        <AvatarImage src={user?.profileImageUrl!} alt="프로필 이미지" />
         <AvatarFallback></AvatarFallback>
       </Avatar>
       <div className="w-full flex flex-col items-start space-y-2">
         <div className="w-full flex justify-between items-center">
           <div className="flex space-x-2 items-center">
             <p className="text-sm font-bold">{user?.nickname}</p>
-            <p className="text-xs text-zinc-400">{dateFormatter(createAt)}</p>
+            <p className="text-xs text-zinc-400">{dateFormatter(createdAt)}</p>
           </div>
           {session && session.user.nickname === user?.nickname && (
             <div className="flex space-x-2 items-center">
@@ -61,9 +63,9 @@ export const CommentItem = ({
             </div>
           )}
         </div>
-        {mentionedUser ? (
+        {mentionedUserNickname ? (
           <p className="text-sm">
-            <b>@{mentionedUser}</b> {content}
+            <b>@{mentionedUserNickname}</b> {content}
           </p>
         ) : (
           <p className="text-sm">{content}</p>
