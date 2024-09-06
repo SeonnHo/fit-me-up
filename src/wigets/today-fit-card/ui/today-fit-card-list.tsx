@@ -7,7 +7,7 @@ import { TodayFitCard } from './today-fit-card';
 import { BeatLoader } from 'react-spinners';
 
 export const TodayFitCardList = () => {
-  const { posts, isLoading, isFetching, hasNextPage, fetchNextPage } =
+  const { posts, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     usePostInfiniteQuery({ limit: 6, category: 'todayFit' });
 
   const observeTargetRef = useIntersectionObserver({
@@ -34,7 +34,7 @@ export const TodayFitCardList = () => {
           ))
         )}
       </section>
-      {isFetching ? (
+      {isFetchingNextPage ? (
         <div className="flex justify-center items-center">
           <BeatLoader size={15} color="black" />
         </div>
