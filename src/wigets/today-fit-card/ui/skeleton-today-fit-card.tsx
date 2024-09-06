@@ -11,16 +11,16 @@ export const SkeletonTodayFitCard = () => {
         <Skeleton className="w-16 h-6" />
       </div>
 
-      <div className="space-y-2 p-0">
+      <div className="flex flex-col space-y-2">
         <Skeleton className="w-full h-[500px]" />
-      </div>
 
-      <div className="flex px-3">
-        <Skeleton className="w-20 h-6" />
-      </div>
+        <div className="flex px-3">
+          <Skeleton className="w-20 h-6" />
+        </div>
 
-      <div className="flex px-3 pb-3">
-        <Skeleton className="w-28 h-5" />
+        <div className="flex px-3 pb-3">
+          <Skeleton className="w-28 h-5" />
+        </div>
       </div>
     </div>
   );
