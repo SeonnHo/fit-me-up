@@ -65,6 +65,7 @@ export const TodayFitImage = ({
             src={image}
             alt="패션 이미지"
             fill
+            sizes="400px"
             priority
             className="w-full h-full object-cover"
           />
