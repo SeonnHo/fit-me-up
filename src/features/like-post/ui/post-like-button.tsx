@@ -22,7 +22,7 @@ export const PostLikeButton = ({
 
   const handleClick = () => {
     mutate(
-      { userId, postId, category, isLike },
+      { userId, postId, category, isLike: !isLike },
       {
         onError: (error) => {
           toast({
