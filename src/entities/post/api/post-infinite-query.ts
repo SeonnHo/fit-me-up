@@ -14,6 +14,11 @@ const postWithAuthor = Prisma.validator<Prisma.PostDefaultArgs>()({
         profileImageUrl: true,
       },
     },
+    likes: {
+      select: {
+        userId: true,
+      },
+    },
     _count: {
       select: {
         comments: true,
@@ -50,6 +55,7 @@ export const usePostInfiniteQuery = ({
     data: posts,
     isLoading,
     isFetching,
+    isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery<UsePostInfiniteQueryResponse>({
@@ -60,5 +66,12 @@ export const usePostInfiniteQuery = ({
       lastPage.next !== null ? Number(lastPage.page) + 1 : undefined,
   });
 
-  return { posts, isLoading, isFetching, hasNextPage, fetchNextPage };
+  return {
+    posts,
+    isLoading,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  };
 };
