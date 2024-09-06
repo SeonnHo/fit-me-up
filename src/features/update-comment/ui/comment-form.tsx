@@ -32,24 +32,26 @@ export const CommentForm = ({ userId }: CommentFormProps) => {
 
   const {
     commentId,
-    mentionedUser,
-    mentioningUser,
     setCommentId,
-    setMentionedUser,
-    setMentioningUser,
+    mentionedUserId,
+    setMentionedUserId,
+    mentioningUserId,
+    setMentioningUserId,
+    mentionedUserNickname,
+    setMentionedUserNickname,
   } = useCommentStore();
 
   const { mutate } = useCommentMutation();
 
-  const handleSubmit = () => {
+  const handleSubmit = (values: z.infer<typeof formSchema>) => {
     mutate(
       {
         commentId,
         userId,
         postId,
-        mentionedUser,
-        mentioningUser,
-        content: form.getValues('comment'),
+        mentionedUserId,
+        mentioningUserId,
+        content: values.comment,
         category,
       },
       {
@@ -58,9 +60,11 @@ export const CommentForm = ({ userId }: CommentFormProps) => {
             title: '댓글 등록',
             description: '댓글이 성공적으로 등록되었습니다.',
           });
+          form.reset();
           setCommentId('');
-          setMentionedUser('');
-          setMentioningUser('');
+          setMentionedUserNickname('');
+          setMentionedUserId('');
+          setMentioningUserId('');
         },
         onError: (error) => {
           toast({
@@ -78,18 +82,21 @@ export const CommentForm = ({ userId }: CommentFormProps) => {
         <FormField
           control={form.control}
           name="comment"
-          render={() => (
+          render={({ field }) => (
             <FormItem className="flex flex-col space-y-1">
-              {mentionedUser && (
+              {mentionedUserNickname && (
                 <div className="flex items-center space-x-4">
                   <p className="text-xs font-bold">
-                    {mentionedUser}님에게 답글 추가...
+                    {mentionedUserNickname}님에게 답글 추가...
                   </p>
                   <Button
                     variant="ghost"
                     type="button"
                     className="text-xs text-zinc-400 font-bold h-auto p-0 hover:bg-transparent"
-                    onClick={() => setMentionedUser('')}
+                    onClick={() => {
+                      setMentionedUserId('');
+                      setMentionedUserNickname('');
+                    }}
                   >
                     취소
                   </Button>
@@ -100,8 +107,11 @@ export const CommentForm = ({ userId }: CommentFormProps) => {
                   <Input
                     type="text"
                     placeholder={
-                      mentionedUser ? '답글 추가...' : '댓글 추가...'
+                      mentionedUserId && mentionedUserNickname
+                        ? '답글 추가...'
+                        : '댓글 추가...'
                     }
+                    {...field}
                   />
                 </FormControl>
                 <Button variant="outline" type="submit">
