@@ -21,29 +21,61 @@ export const useLikePost = () => {
       isLike,
     });
 
-    if (isLike) {
-      const res = await fetch('/api/post/like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: body,
-      });
+    const method = isLike ? 'POST' : 'DELETE';
+    const res = await fetch('/api/post/like', {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body,
+    });
 
-      return res.json();
-    } else {
-      const res = await fetch('/api/post/like', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: body,
-      });
-
-      return res.json();
-    }
+    return res.json();
   };
 
   const { mutate } = useMutation({
     mutationFn: addPostLikeCount,
-    onSuccess: (_, { postId, category }) => {
-      queryClient.invalidateQueries({ queryKey: ['posts', category, postId] });
+    onMutate: async ({ postId, category, isLike }) => {
+      await queryClient.cancelQueries({ queryKey: ['posts', category] });
+      const previousData = queryClient.getQueryData(['posts', category]);
+
+      queryClient.setQueryData(['posts', category], (old: any) => {
+        if (!old || !old.pages || !Array.isArray(old.pages)) {
+          console.error('Unexpected data structure in cache');
+          return old;
+        }
+
+        return {
+          ...old,
+          pages: old.pages.map((page: any) => ({
+            ...page,
+            posts: Array.isArray(page.posts)
+              ? page.posts.map((post: any) =>
+                  post?.id === postId
+                    ? {
+                        ...post,
+                        _count: {
+                          ...post._count,
+                          likes: (post._count?.likes || 0) + (isLike ? 1 : -1),
+                        },
+                      }
+                    : post
+                )
+              : [],
+          })),
+        };
+      });
+
+      return { previousData };
+    },
+    onError: (err, variables, context: any) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          ['posts', variables.category],
+          context.previousData
+        );
+      }
+    },
+    onSettled: (_, __, { category }) => {
+      queryClient.invalidateQueries({ queryKey: ['posts', category] });
     },
   });
 
