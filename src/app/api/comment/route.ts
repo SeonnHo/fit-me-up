@@ -5,7 +5,7 @@ interface RequestBody {
   userId: string;
   postId: string;
   content: string;
-  commentId?: string;
+  parentCommentId?: string;
   mentionedUserId?: string;
   mentioningUserId?: string;
 }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
           content: body.content,
           author: { connect: { id: body.userId } },
           post: { connect: { id: body.postId } },
-          parent: { connect: { id: body.commentId } },
+          parent: { connect: { id: body.parentCommentId } },
           mentionedUser: body.mentionedUserId
             ? { connect: { id: body.mentionedUserId } }
             : undefined,
@@ -84,6 +84,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(createdComment);
     }
   } catch (error) {
-    throw new Error(error as string);
+    return NextResponse.json(error, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  const body: { commentId: string; content: string } = await request.json();
+
+  try {
+    const updatedComment = await prisma.comment.update({
+      where: {
+        id: body.commentId,
+      },
+      data: {
+        content: body.content,
+      },
+    });
+
+    return NextResponse.json(updatedComment);
+  } catch (error) {
+    return NextResponse.json(error, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const body: { commentId: string } = await request.json();
+
+  try {
+    const deletedComment = await prisma.comment.delete({
+      where: {
+        id: body.commentId,
+      },
+    });
+
+    return NextResponse.json(deletedComment);
+  } catch (error) {
+    return NextResponse.json(error, { status: 500 });
   }
 }
