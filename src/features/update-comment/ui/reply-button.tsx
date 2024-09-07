@@ -1,11 +1,11 @@
 'use client';
 
-import { useCommentStore } from '@/entities/comment';
 import { cn } from '@/shared/lib/tailwind-merge';
 import { Button } from '@/shared/ui/button';
 import { toast } from '@/shared/ui/use-toast';
 import { User } from '@prisma/client';
 import { Session } from 'next-auth';
+import { useReplyStore } from '../model/reply-store';
 
 interface ReplyButtonProps {
   className?: string;
@@ -21,11 +21,11 @@ export const ReplyButton = ({
   user,
 }: ReplyButtonProps) => {
   const {
-    setCommentId,
+    setParentCommentId,
     setMentionedUserId,
     setMentioningUserId,
     setMentionedUserNickname,
-  } = useCommentStore();
+  } = useReplyStore();
 
   const handleClick = () => {
     if (!session) {
@@ -39,7 +39,7 @@ export const ReplyButton = ({
     setMentionedUserId(user.id!);
     setMentionedUserNickname(user.nickname);
     setMentioningUserId(session.user.id!);
-    setCommentId(commentId);
+    setParentCommentId(commentId);
   };
   return (
     <Button
