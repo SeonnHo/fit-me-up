@@ -95,7 +95,7 @@ export const TodayFitCard = ({
         <div className="flex px-3">
           <div className="flex items-center space-x-1">
             <PostLikeButton
-              userId={authorId}
+              userId={session && session.user.id ? session.user.id : undefined}
               postId={postId}
               category={category}
               isLike={isLike}
