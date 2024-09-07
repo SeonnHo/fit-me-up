@@ -1,6 +1,5 @@
 'use client';
 
-import { useCommentStore } from '@/entities/comment';
 import { useCommentMutation } from '../api/comment-mutation';
 import { Button } from '@/shared/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/shared/ui/form';
@@ -10,19 +9,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { FaArrowUpLong } from 'react-icons/fa6';
 import { z } from 'zod';
-import { useCommentModalStore } from '@/shared/model/comment-modal-store';
+import { useReplyStore } from '../model/reply-store';
 
 const formSchema = z.object({
   comment: z.string().min(1, { message: '내용을 입력해주세요.' }),
 });
 
 interface CommentFormProps {
-  userId: string;
+  userId?: string;
+  postId: string;
+  category: string;
 }
 
-export const CommentForm = ({ userId }: CommentFormProps) => {
-  const { postId, category } = useCommentModalStore();
-
+export const CommentForm = ({ userId, postId, category }: CommentFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,22 +30,22 @@ export const CommentForm = ({ userId }: CommentFormProps) => {
   });
 
   const {
-    commentId,
-    setCommentId,
+    parentCommentId,
+    setParentCommentId,
     mentionedUserId,
     setMentionedUserId,
     mentioningUserId,
     setMentioningUserId,
     mentionedUserNickname,
     setMentionedUserNickname,
-  } = useCommentStore();
+  } = useReplyStore();
 
-  const { mutate } = useCommentMutation();
+  const { mutate } = useCommentMutation({ method: 'POST' });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     mutate(
       {
-        commentId,
+        parentCommentId,
         userId,
         postId,
         mentionedUserId,
@@ -61,7 +60,7 @@ export const CommentForm = ({ userId }: CommentFormProps) => {
             description: '댓글이 성공적으로 등록되었습니다.',
           });
           form.reset();
-          setCommentId('');
+          setParentCommentId('');
           setMentionedUserNickname('');
           setMentionedUserId('');
           setMentioningUserId('');
@@ -111,10 +110,11 @@ export const CommentForm = ({ userId }: CommentFormProps) => {
                         ? '답글 추가...'
                         : '댓글 추가...'
                     }
+                    disabled={!userId}
                     {...field}
                   />
                 </FormControl>
-                <Button variant="outline" type="submit">
+                <Button variant="outline" type="submit" disabled={!userId}>
                   <FaArrowUpLong className="size-5" />
                 </Button>
               </div>
