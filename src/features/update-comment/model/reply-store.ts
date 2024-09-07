@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 
-interface CommentStore {
-  commentId: string;
-  setCommentId: (id: string) => void;
+interface ReplyStore {
+  parentCommentId: string;
+  setParentCommentId: (id: string) => void;
   mentionedUserId: string;
   setMentionedUserId: (userId: string) => void;
   mentioningUserId: string;
@@ -11,9 +11,9 @@ interface CommentStore {
   setMentionedUserNickname: (nickname: string) => void;
 }
 
-export const useCommentStore = create<CommentStore>((set) => ({
-  commentId: '',
-  setCommentId: (id) => set({ commentId: id }),
+export const useReplyStore = create<ReplyStore>((set) => ({
+  parentCommentId: '',
+  setParentCommentId: (id) => set({ parentCommentId: id }),
   mentionedUserId: '',
   setMentionedUserId: (userId) => set({ mentionedUserId: userId }),
   mentioningUserId: '',
