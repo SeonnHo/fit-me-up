@@ -5,7 +5,7 @@ interface CommentModalStore {
   postId: string;
   category: string;
   onOpen: (postId: string, category: string) => void;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
 }
 
 export const useCommentModalStore = create<CommentModalStore>((set) => ({
@@ -15,7 +15,7 @@ export const useCommentModalStore = create<CommentModalStore>((set) => ({
   onOpen: (postId, category) => {
     set({ isOpen: true, postId, category });
   },
-  onClose: () => {
-    set({ isOpen: false });
+  onOpenChange: (open) => {
+    set({ isOpen: open });
   },
 }));
