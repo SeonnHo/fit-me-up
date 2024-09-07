@@ -9,7 +9,7 @@ import { useCommentModalStore } from '@/shared/model/comment-modal-store';
 export const CommentModal = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { data: session } = useSession();
-  const { isOpen, onClose } = useCommentModalStore();
+  const { isOpen, onOpenChange, postId, category } = useCommentModalStore();
 
   if (!isOpen) return;
 
@@ -18,7 +18,9 @@ export const CommentModal = () => {
       <CommentListDrawer
         open={isOpen}
         session={session}
-        onOpenChange={onClose}
+        onOpenChange={onOpenChange}
+        postId={postId}
+        category={category}
       />
     );
   }
@@ -28,7 +30,9 @@ export const CommentModal = () => {
       <CommentListDialog
         open={isOpen}
         session={session}
-        onOpenChange={onClose}
+        onOpenChange={onOpenChange}
+        postId={postId}
+        category={category}
       />
     );
   }

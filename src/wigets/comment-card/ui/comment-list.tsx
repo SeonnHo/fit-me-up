@@ -5,11 +5,12 @@ import { CommentItem } from './comment-item';
 import { useCommentQuery } from '@/entities/comment';
 import { SkeletonCommentItem } from './skeleton-comment-item';
 import { Session } from 'next-auth';
-import { useCommentModalStore } from '@/shared/model/comment-modal-store';
-import { Comment, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 interface CommentListProps {
   session: Session | null;
+  postId: string;
+  category: string;
 }
 
 type CommentWithAuthor = Prisma.CommentGetPayload<{
@@ -22,13 +23,16 @@ type CommentWithAuthor = Prisma.CommentGetPayload<{
   };
 }>;
 
-export const CommentList = ({ session }: CommentListProps) => {
-  const { postId } = useCommentModalStore();
+export const CommentList = ({
+  session,
+  postId,
+  category,
+}: CommentListProps) => {
   const { comments, isLoading, isFetching } = useCommentQuery(postId);
 
   if (isLoading || isFetching) {
     return (
-      <ul className="flex justify-center items-center">
+      <ul className="flex justify-start items-center">
         <SkeletonCommentItem />
       </ul>
     );
@@ -59,6 +63,8 @@ export const CommentList = ({ session }: CommentListProps) => {
     return (
       <React.Fragment key={rootComment.id}>
         <CommentItem
+          postId={postId}
+          category={category}
           commentId={rootComment.id}
           content={rootComment.content}
           authorId={rootComment.authorId}
@@ -69,7 +75,10 @@ export const CommentList = ({ session }: CommentListProps) => {
           <CommentItem
             key={reply.id}
             className="pl-6"
-            commentId={rootComment.id}
+            postId={postId}
+            category={category}
+            commentId={reply.id}
+            parentCommentId={rootComment.id}
             content={reply.content}
             authorId={reply.authorId}
             createdAt={reply.createdAt}

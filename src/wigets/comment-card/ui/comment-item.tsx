@@ -7,14 +7,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
 import { Session } from 'next-auth';
 import { SkeletonCommentItem } from './skeleton-comment-item';
 import {
-  DeleteCommentButton,
-  ModifyCommentButton,
+  DeleteCommentConfirmModal,
+  ModifyCommentFormModal,
   ReplyButton,
 } from '@/features/update-comment';
 
 interface CommentItemProps {
   className?: string;
+  postId: string;
+  category: string;
   commentId: string;
+  parentCommentId?: string;
   authorId: string;
   content: string;
   createdAt: Date;
@@ -25,7 +28,10 @@ interface CommentItemProps {
 
 export const CommentItem = ({
   className,
+  postId,
+  category,
   commentId,
+  parentCommentId,
   authorId,
   content,
   createdAt,
@@ -58,8 +64,20 @@ export const CommentItem = ({
           </div>
           {session && session.user.nickname === user?.nickname && (
             <div className="flex space-x-2 items-center">
-              <ModifyCommentButton />
-              <DeleteCommentButton />
+              <ModifyCommentFormModal
+                commentId={commentId}
+                originalContent={content}
+                postId={postId}
+                category={category}
+              />
+              <DeleteCommentConfirmModal
+                commentId={commentId}
+                postId={postId}
+                category={category}
+                authorNickname={user?.nickname!}
+                content={content}
+                mentionedUserNickname={mentionedUserNickname}
+              />
             </div>
           )}
         </div>
@@ -70,7 +88,11 @@ export const CommentItem = ({
         ) : (
           <p className="text-sm">{content}</p>
         )}
-        <ReplyButton commentId={commentId} user={user!} session={session} />
+        <ReplyButton
+          commentId={parentCommentId ? parentCommentId : commentId}
+          user={user!}
+          session={session}
+        />
       </div>
     </li>
   );
