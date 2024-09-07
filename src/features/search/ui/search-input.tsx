@@ -37,12 +37,15 @@ export const SearchInput = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="w-[300px] max-sm:w-full"
+      >
         <FormField
           control={form.control}
           name="searchInput"
           render={({ field, fieldState }) => (
-            <FormItem className="relative w-[300px] h-10 max-sm:w-full flex items-center border rounded-md p-2 space-x-1 space-y-0">
+            <FormItem className="relative h-10 flex items-center border rounded-md p-2 space-x-1 space-y-0">
               <FormLabel className={fieldState.error && 'text-black'}>
                 <MdOutlineSearch className="size-6" />
               </FormLabel>
