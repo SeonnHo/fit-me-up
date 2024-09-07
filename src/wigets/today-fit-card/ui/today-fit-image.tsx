@@ -67,7 +67,7 @@ export const TodayFitImage = ({
             fill
             sizes="400px"
             priority
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain bg-zinc-50"
           />
           <Button
             variant="outline"
