@@ -16,9 +16,10 @@ import { IoClose } from 'react-icons/io5';
 import { MdOutlineSearch } from 'react-icons/md';
 import { z } from 'zod';
 import { cn } from '@/shared/lib/tailwind-merge';
+import { useSearchTermStore } from '../model/search-term-store';
 
 const searchSchema = z.object({
-  searchInput: z
+  searchTerm: z
     .string({ required_error: '검색하려는 제목을 입력해주세요.' })
     .min(1, { message: '최소 1자 이상 입력해야합니다.' }),
 });
@@ -27,12 +28,20 @@ export const SearchInput = () => {
   const form = useForm({
     resolver: zodResolver(searchSchema),
     defaultValues: {
-      searchInput: '',
+      searchTerm: '',
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof searchSchema>) => {
-    console.log(values);
+  const { setSearchTerm } = useSearchTermStore();
+
+  const handleSubmit = ({ searchTerm }: z.infer<typeof searchSchema>) => {
+    setSearchTerm(searchTerm);
+  };
+
+  const handleChange = () => {
+    if (!form.watch('searchTerm')) {
+      setSearchTerm('');
+    }
   };
 
   return (
@@ -43,13 +52,13 @@ export const SearchInput = () => {
       >
         <FormField
           control={form.control}
-          name="searchInput"
+          name="searchTerm"
           render={({ field, fieldState }) => (
             <FormItem className="relative h-10 flex items-center border rounded-md p-2 space-x-1 space-y-0">
               <FormLabel className={fieldState.error && 'text-black'}>
                 <MdOutlineSearch className="size-6" />
               </FormLabel>
-              <FormControl>
+              <FormControl onChange={handleChange}>
                 <Input
                   type="search"
                   placeholder="검색..."
