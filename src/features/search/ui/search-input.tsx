@@ -48,7 +48,7 @@ export const SearchInput = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-[300px] max-sm:w-full"
+        className="w-[300px] max-lg:w-full"
       >
         <FormField
           control={form.control}
@@ -75,7 +75,10 @@ export const SearchInput = () => {
                     className="h-auto p-0.5"
                     type="button"
                     variant="ghost"
-                    onClick={() => form.reset()}
+                    onClick={() => {
+                      setSearchTerm('');
+                      form.reset();
+                    }}
                   >
                     <IoClose className="size-5 text-black/50 hover:text-black" />
                   </Button>
