@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
   const category = searchParams.get('category');
   const pageParam = searchParams.get('page');
   const limit = searchParams.get('limit');
+  const search = searchParams.get('search');
 
   try {
     if (!category) {
@@ -41,10 +42,17 @@ export async function GET(request: NextRequest) {
       throw new Error('"limit" does not have a value.');
     }
 
+    const whereClause: any = {
+      category: category,
+    };
+
+    if (search) {
+      console.log(decodeURIComponent(search));
+      whereClause.OR = [{ author: { nickname: { contains: search } } }];
+    }
+
     const posts = await prisma.post.findMany({
-      where: {
-        category: category,
-      },
+      where: whereClause,
       skip: (Number(pageParam) - 1) * Number(limit),
       take: Number(limit),
       orderBy: {
