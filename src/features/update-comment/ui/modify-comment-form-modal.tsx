@@ -108,7 +108,9 @@ export const ModifyCommentFormModal = ({
       >
         <DialogHeader>
           <DialogTitle>댓글 수정</DialogTitle>
-          <DialogDescription>댓글 내용을 수정 후</DialogDescription>
+          <DialogDescription>
+            댓글 내용을 수정 후 버튼을 클릭해 주세요.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -120,7 +122,7 @@ export const ModifyCommentFormModal = ({
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>댓글</FormLabel>
+                  <FormLabel>내용</FormLabel>
                   <FormControl>
                     <Input type="text" placeholder="내용..." {...field} />
                   </FormControl>
@@ -129,7 +131,7 @@ export const ModifyCommentFormModal = ({
               )}
             />
             <DialogFooter>
-              <Button type="submit">댓글 수정</Button>
+              <Button type="submit">수정하기</Button>
             </DialogFooter>
           </form>
         </Form>
