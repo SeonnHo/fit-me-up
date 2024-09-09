@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 interface UsePostInfiniteQueryProps {
   limit: number;
   category: string;
+  searchTerm: string;
 }
 
 const postWithAuthor = Prisma.validator<Prisma.PostDefaultArgs>()({
@@ -39,10 +40,13 @@ interface UsePostInfiniteQueryResponse {
 export const usePostInfiniteQuery = ({
   limit,
   category,
+  searchTerm,
 }: UsePostInfiniteQueryProps) => {
   const fetchPost = async ({ pageParam }: { pageParam: unknown }) => {
     const res = await fetch(
-      `/api/post?category=${category}&page=${pageParam}&limit=${limit}`,
+      `/api/post?category=${category}&page=${pageParam}&limit=${limit}&search=${encodeURIComponent(
+        searchTerm
+      )}`,
       {
         method: 'GET',
       }
@@ -59,7 +63,7 @@ export const usePostInfiniteQuery = ({
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery<UsePostInfiniteQueryResponse>({
-    queryKey: ['posts', category],
+    queryKey: ['posts', category, searchTerm],
     queryFn: fetchPost,
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
