@@ -14,7 +14,7 @@ export const ThumbnailList = () => {
 
   if (filePathList.length > 0) {
     return (
-      <div className="flex space-x-4 overflow-scroll whitespace-nowrap max-sm:p-4 max-sm:pt-0 pb-4">
+      <div className="flex space-x-4 overflow-scroll whitespace-nowrap">
         {filePathList.map((filePath, index) => (
           <div
             key={filePath}
@@ -33,7 +33,7 @@ export const ThumbnailList = () => {
     );
   } else {
     return (
-      <div className="max-sm:p-4 max-sm:pt-0 pb-4">
+      <div>
         <div className="border-2 border-dashed w-[100px] h-[100px] flex justify-center items-center rounded-lg">
           <LuImage className="size-6" />
         </div>

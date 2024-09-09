@@ -107,7 +107,7 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
           className="space-y-4 max-sm:px-4"
           onSubmit={form.handleSubmit(handleSubmit)}
         >
-          <div className="max-sm:p-4 py-4 flex space-x-2">
+          <div className="flex space-x-2">
             <CategorySelectFormField form={form} />
             <ImagePickFormField form={form} />
           </div>
