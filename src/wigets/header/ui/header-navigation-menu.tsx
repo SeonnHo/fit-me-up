@@ -12,7 +12,7 @@ import {
 } from '@/shared/ui/navigation-menu';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { MouseEventHandler, useState } from 'react';
+import React, { useState } from 'react';
 import { LuChevronDown } from 'react-icons/lu';
 
 interface NavigationMenuProps {
@@ -36,8 +36,8 @@ export const HeaderNavigationMenu = ({
 }: NavigationMenuProps) => {
   const [isExtended, setIsExtended] = useState(false);
   const [extensionInfoList, setExtensionInfoList] = useState([
-    { category: '/community/man', extended: false },
-    { category: '/community/woman', extended: false },
+    { category: '/community/male', extended: false },
+    { category: '/community/female', extended: false },
   ]);
   const path = usePathname();
   const router = useRouter();
