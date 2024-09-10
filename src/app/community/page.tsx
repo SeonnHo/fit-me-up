@@ -3,14 +3,14 @@ import React from 'react';
 export default function CommunityPage() {
   const navCategoryList = [
     { name: '전체 글', path: '/community' },
-    { name: '남성 커뮤니티', path: '/community/man' },
-    { name: '여성 커뮤니티', path: '/community/woman' },
+    { name: '남성 커뮤니티', path: '/community/male' },
+    { name: '여성 커뮤니티', path: '/community/female' },
   ];
 
   const boardList = [
-    { name: '자유게시판', path: '/board/free' },
-    { name: '질문게시판', path: '/board/question' },
-    { name: '정보게시판', path: '/board/info' },
+    { name: '자유게시판', path: '/free' },
+    { name: '질문게시판', path: '/question' },
+    { name: '정보게시판', path: '/info' },
   ];
   return (
     <main className="relative max-w-screen-xl h-[300vh] flex lg:items-start lg:space-x-4">
