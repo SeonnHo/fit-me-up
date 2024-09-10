@@ -9,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select';
-import { useCreatePostFormStore } from '../model/create-post-form-store';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { postFormSchema } from '../model/post-schema';
@@ -44,15 +43,15 @@ export const CategorySelectFormField = ({
               </SelectGroup>
               <SelectGroup>
                 <SelectLabel className="pl-2">남성 커뮤니티</SelectLabel>
-                <SelectItem value="manFree">자유게시판</SelectItem>
-                <SelectItem value="manQuestion">질문게시판</SelectItem>
-                <SelectItem value="manInfo">정보게시판</SelectItem>
+                <SelectItem value="maleFree">자유게시판</SelectItem>
+                <SelectItem value="maleQuestion">질문게시판</SelectItem>
+                <SelectItem value="maleInfo">정보게시판</SelectItem>
               </SelectGroup>
               <SelectGroup>
                 <SelectLabel className="pl-2">여성 커뮤니티</SelectLabel>
-                <SelectItem value="womanFree">자유게시판</SelectItem>
-                <SelectItem value="womanQuestion">질문게시판</SelectItem>
-                <SelectItem value="womanInfo">정보게시판</SelectItem>
+                <SelectItem value="femaleFree">자유게시판</SelectItem>
+                <SelectItem value="femaleQuestion">질문게시판</SelectItem>
+                <SelectItem value="femaleInfo">정보게시판</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
