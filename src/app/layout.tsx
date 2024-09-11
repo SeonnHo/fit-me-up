@@ -3,7 +3,7 @@ import { Nanum_Gothic, Roboto } from 'next/font/google';
 import './globals.css';
 import AuthProvider from '@/app/_providers/auth-provider';
 import { Toaster } from '@/shared/ui/toaster';
-import ReactQueryProviders from '@/app/_providers/query-provider';
+import QueryProviders from '@/app/_providers/query-provider';
 import dynamic from 'next/dynamic';
 
 const nanumGothic = Nanum_Gothic({
@@ -42,13 +42,13 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${nanumGothic.className} ${roboto.variable}`}>
-        <ReactQueryProviders>
+        <QueryProviders>
           <AuthProvider>
             <Header />
             {children}
             <Toaster />
           </AuthProvider>
-        </ReactQueryProviders>
+        </QueryProviders>
       </body>
     </html>
   );
