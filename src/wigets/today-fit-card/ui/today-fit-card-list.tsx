@@ -6,9 +6,10 @@ import { SkeletonTodayFitCard } from './skeleton-today-fit-card';
 import { TodayFitCard } from './today-fit-card';
 import { BeatLoader } from 'react-spinners';
 import { useSearchTermStore } from '@/features/search';
+import { useEffect } from 'react';
 
 export const TodayFitCardList = () => {
-  const { searchTerm } = useSearchTermStore();
+  const { searchTerm, setSearchTerm } = useSearchTermStore();
 
   const { posts, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     usePostInfiniteQuery({ limit: 6, category: 'todayFit', searchTerm });
@@ -17,6 +18,12 @@ export const TodayFitCardList = () => {
     hasNextPage,
     fetchNextPage,
   });
+
+  useEffect(() => {
+    return () => {
+      setSearchTerm('');
+    };
+  }, [setSearchTerm]);
 
   if (isLoading) {
     return (
