@@ -14,7 +14,7 @@ export const dateFormatter = (date: Date): string => {
   if (months < 12) return `${Math.floor(months)}개월 전`;
 
   const createAt = new Date(
-    date.toLocaleString('en-US', { timeZone: 'Asia/Seoul' })
+    date.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
   );
   return `${createAt.getFullYear()}년 ${
     createAt.getMonth() + 1
