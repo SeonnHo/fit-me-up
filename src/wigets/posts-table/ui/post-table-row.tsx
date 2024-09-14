@@ -1,33 +1,37 @@
+'use client';
+
 import { TableCell, TableRow } from '@/shared/ui/table';
 import { Prisma } from '@prisma/client';
 import { FaImage } from 'react-icons/fa6';
 import { format, isToday } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { useRouter } from 'next/navigation';
 
-type PostWithAuthor = Prisma.PostGetPayload<{
-  include: {
-    author: {
-      select: {
-        nickname: true;
-        profileImageUrl: true;
-      };
-    };
-    likes: {
-      select: {
-        userId: true;
-      };
-    };
+type PostSummary = Prisma.PostGetPayload<{
+  select: {
+    id: true;
+    title: true;
+    category: true;
+    imageUrls: true;
+    createdAt: true;
+    viewCount: true;
     _count: {
       select: {
         comments: true;
-        likes: true;
+      };
+    };
+    author: {
+      select: {
+        nickname: true;
       };
     };
   };
 }>;
 
-interface PostsTableProps {
-  post: PostWithAuthor;
+interface PostsTableRowProps {
+  post: PostSummary;
+  gender: string;
+  board: string;
 }
 
 const formatDate = (date: Date) => {
@@ -38,9 +42,14 @@ const formatDate = (date: Date) => {
   }
 };
 
-export const PostTableRow = ({ post }: PostsTableProps) => {
+export const PostTableRow = ({ post, gender, board }: PostsTableRowProps) => {
+  const router = useRouter();
+
   return (
-    <TableRow className="cursor-pointer">
+    <TableRow
+      className="cursor-pointer"
+      onClick={() => router.push(`/community/${gender}/${board}/${post.id}`)}
+    >
       <TableCell className="flex items-center space-x-1 text-center p-2 xl:w-[600px]">
         <span className="line-clamp-1 break-all">{post.title}</span>
         {post.imageUrls.length > 0 && (
@@ -54,11 +63,13 @@ export const PostTableRow = ({ post }: PostsTableProps) => {
           </span>
         )}
       </TableCell>
-      <TableCell className="text-center p-2">{post.author.nickname}</TableCell>
+      <TableCell className="text-center p-2 w-[100px]">
+        {post.author.nickname}
+      </TableCell>
       <TableCell className="text-center p-2">
         {formatDate(post.createdAt)}
       </TableCell>
-      <TableCell className="text-center p-2">0</TableCell>
+      <TableCell className="text-center p-2">{post.viewCount}</TableCell>
     </TableRow>
   );
 };

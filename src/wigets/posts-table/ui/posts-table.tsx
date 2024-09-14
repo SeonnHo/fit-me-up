@@ -14,17 +14,40 @@ import {
 import { BeatLoader } from 'react-spinners';
 import { useIntersectionObserver } from '@/wigets/today-fit-card/lib/use-intersection-observer';
 import { useEffect } from 'react';
+import { Prisma } from '@prisma/client';
 
-interface PostsProps {
+interface PostsTableProps {
   category: string;
-  limit: number;
+  gender: string;
+  board: string;
 }
 
-export const PostsTable = ({ category, limit }: PostsProps) => {
+type PostSummary = Prisma.PostGetPayload<{
+  select: {
+    id: true;
+    title: true;
+    category: true;
+    imageUrls: true;
+    createdAt: true;
+    viewCount: true;
+    _count: {
+      select: {
+        comments: true;
+      };
+    };
+    author: {
+      select: {
+        nickname: true;
+      };
+    };
+  };
+}>;
+
+export const PostsTable = ({ category, gender, board }: PostsTableProps) => {
   const { searchTerm, setSearchTerm } = useSearchTermStore();
 
   const { posts, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
-    usePostInfiniteQuery({ category, limit, searchTerm });
+    usePostInfiniteQuery<PostSummary>({ category, limit: 10, searchTerm });
 
   const observeTargetRef = useIntersectionObserver({
     hasNextPage,
@@ -47,12 +70,19 @@ export const PostsTable = ({ category, limit }: PostsProps) => {
             <TableHead className="text-center">제목</TableHead>
             <TableHead className="text-center">작성자</TableHead>
             <TableHead className="text-center">생성일</TableHead>
-            <TableHead className="text-center">조회수</TableHead>
+            <TableHead className="text-center">조회</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {posts?.pages.map((page) =>
-            page.posts.map((post) => <PostTableRow key={post.id} post={post} />)
+            page.posts.map((post) => (
+              <PostTableRow
+                key={post.id}
+                post={post}
+                gender={gender}
+                board={board}
+              />
+            ))
           )}
         </TableBody>
       </Table>
