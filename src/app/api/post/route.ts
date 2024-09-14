@@ -24,39 +24,21 @@ const s3Client = new S3Client({ region: process.env.AWS_REGION });
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const category = searchParams.get('category');
-  const pageParam = searchParams.get('page');
-  const limit = searchParams.get('limit');
-  const search = searchParams.get('search');
+  const id = searchParams.get('id');
 
   try {
-    if (!category) {
-      throw new Error('"category" does not have a value.');
+    if (!id) {
+      throw new Error('"id" does not have a value.');
     }
 
-    if (!pageParam) {
-      throw new Error('"pageParam" does not have a value.');
-    }
-
-    if (!limit) {
-      throw new Error('"limit" does not have a value.');
-    }
-
-    const whereClause: any = {
-      category: category,
-    };
-
-    if (search) {
-      console.log(decodeURIComponent(search));
-      whereClause.OR = [{ author: { nickname: { contains: search } } }];
-    }
-
-    const posts = await prisma.post.findMany({
-      where: whereClause,
-      skip: (Number(pageParam) - 1) * Number(limit),
-      take: Number(limit),
-      orderBy: {
-        id: 'desc',
+    const post = await prisma.post.update({
+      where: {
+        id,
+      },
+      data: {
+        viewCount: {
+          increment: 1,
+        },
       },
       include: {
         author: {
@@ -79,11 +61,9 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
-      posts: posts,
-      page: Number(pageParam),
-      next: posts.length < Number(limit) ? null : true,
-    });
+    console.log('post : ', post);
+
+    return NextResponse.json(post);
   } catch (error) {
     return NextResponse.json(error, { status: 500 });
   }
@@ -119,7 +99,12 @@ export async function POST(request: NextRequest) {
             };
             const command = new PutObjectCommand(params);
             await s3Client.send(command);
-            imageUrlList.push(uuid + fileExtension);
+            imageUrlList.push(
+              process.env.AWS_CLOUD_FRONT_URL +
+                `post/${category}/` +
+                uuid +
+                fileExtension
+            );
           }
         }
       }
@@ -139,8 +124,6 @@ export async function POST(request: NextRequest) {
             author: { connect: { id: body.userId } },
           },
         });
-
-        console.log('result: ', result);
 
         return NextResponse.json(result);
       }
