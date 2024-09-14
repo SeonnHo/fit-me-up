@@ -31,20 +31,20 @@ const postWithAuthor = Prisma.validator<Prisma.PostDefaultArgs>()({
 
 type PostWithAuthor = Prisma.PostGetPayload<typeof postWithAuthor>;
 
-interface UsePostInfiniteQueryResponse {
-  posts: Required<PostWithAuthor>[];
+interface UsePostInfiniteQueryResponse<T> {
+  posts: Required<T>[];
   page: number;
   next: boolean | null;
 }
 
-export const usePostInfiniteQuery = ({
+export const usePostInfiniteQuery = <T = PostWithAuthor>({
   limit,
   category,
   searchTerm,
 }: UsePostInfiniteQueryProps) => {
   const fetchPost = async ({ pageParam }: { pageParam: unknown }) => {
     const res = await fetch(
-      `/api/post?category=${category}&page=${pageParam}&limit=${limit}&search=${encodeURIComponent(
+      `/api/post/list?category=${category}&page=${pageParam}&limit=${limit}&search=${encodeURIComponent(
         searchTerm
       )}`,
       {
@@ -62,7 +62,7 @@ export const usePostInfiniteQuery = ({
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useInfiniteQuery<UsePostInfiniteQueryResponse>({
+  } = useInfiniteQuery<UsePostInfiniteQueryResponse<T>>({
     queryKey: ['posts', category, searchTerm],
     queryFn: fetchPost,
     initialPageParam: 1,
