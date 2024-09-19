@@ -39,7 +39,7 @@ export const PostContent = ({
     <section className="flex flex-col justify-between space-y-4 p-4 border-b min-h-[400px]">
       <div className="flex flex-col space-y-4">
         {imageUrls.length > 0 && <PostImageCarousel imageUrls={imageUrls} />}
-        <p className="break-all text-sm">{content}</p>
+        <p className="break-all text-sm whitespace-pre-line">{content}</p>
       </div>
 
       <div className="flex justify-start items-center space-x-5">
