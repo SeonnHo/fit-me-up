@@ -25,11 +25,24 @@ const s3Client = new S3Client({ region: process.env.AWS_REGION });
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const id = searchParams.get('id');
+  const view = searchParams.get('view');
 
   try {
     if (!id) {
       throw new Error('"id" does not have a value.');
     }
+
+    if (!view) {
+      throw new Error('"view" does not have a value.');
+    }
+
+    let isView: boolean;
+
+    if (typeof JSON.parse(view) !== 'boolean')
+      throw new Error('"view" is not of type boolean');
+    else isView = JSON.parse(view);
+
+    console.log('isView :', isView);
 
     const post = await prisma.post.update({
       where: {
@@ -37,7 +50,7 @@ export async function GET(request: NextRequest) {
       },
       data: {
         viewCount: {
-          increment: 1,
+          increment: isView ? 1 : 0,
         },
       },
       include: {
@@ -60,8 +73,6 @@ export async function GET(request: NextRequest) {
         },
       },
     });
-
-    console.log('post : ', post);
 
     return NextResponse.json(post);
   } catch (error) {
