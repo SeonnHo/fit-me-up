@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: { postId },
 }: PostDetailsPageProps): Promise<Metadata> {
   const fetchPost = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/post?id=${postId}`
+    `${process.env.NEXTAUTH_URL}/api/post?id=${postId}&view=false`
   ).then((res) => res.json());
 
   return {
@@ -33,9 +33,9 @@ export default async function PostDetailsPage({
   await queryClient.prefetchQuery({
     queryKey: ['post', postId],
     queryFn: async () => {
-      console.log('Fetching...');
       const res = await fetch(
-        `${process.env.NEXTAUTH_URL}/api/post?id=${postId}`
+        `${process.env.NEXTAUTH_URL}/api/post?id=${postId}&view=false`,
+        { cache: 'no-store' }
       );
 
       return res.json();
