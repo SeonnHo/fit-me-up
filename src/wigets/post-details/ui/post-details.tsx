@@ -36,13 +36,11 @@ export const PostDetails = ({ postId }: PostDetailsProps) => {
   const { data, isLoading, isFetching } = useQuery<Post>({
     queryKey: ['post', postId],
     queryFn: async () => {
-      const res = await fetch(`/api/post?id=${postId}`);
+      const res = await fetch(`/api/post?id=${postId}&view=true`);
 
       return res.json();
     },
   });
-
-  console.log('post details component : ', data);
 
   if (isLoading) return <div>Loading...</div>;
 
