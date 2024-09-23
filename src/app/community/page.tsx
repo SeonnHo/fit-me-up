@@ -1,3 +1,4 @@
+import { NavigationCard } from '@/wigets/navigation-card';
 import React from 'react';
 
 export default function CommunityPage() {
@@ -14,6 +15,7 @@ export default function CommunityPage() {
   ];
   return (
     <main className="relative max-w-screen-xl h-[300vh] flex lg:items-start lg:space-x-4">
+      <NavigationCard />
       <nav className="sticky top-[100px] border rounded w-[200px] p-4 max-lg:hidden">
         <ul>
           {navCategoryList.map((category) => (
