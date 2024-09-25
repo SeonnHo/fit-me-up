@@ -21,9 +21,16 @@ export async function GET(request: NextRequest) {
       throw new Error('"limit" does not have a value.');
     }
 
-    const whereClause: any = {
-      category: category,
-    };
+    const whereClause: any =
+      category !== 'all'
+        ? {
+            category: { contains: category },
+          }
+        : {
+            NOT: {
+              category: 'todayFit',
+            },
+          };
 
     if (search) {
       whereClause.OR = [{ author: { nickname: { contains: search } } }];
