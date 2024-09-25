@@ -27,11 +27,7 @@ export default async function BoardPage({ params }: Props) {
           <FaRegEdit className="size-5" />
         </Link>
       </div>
-      <PostsTable
-        category={category}
-        gender={params.gender}
-        board={params.board}
-      />
+      <PostsTable category={category} />
     </main>
   );
 }
