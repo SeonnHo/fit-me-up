@@ -7,6 +7,7 @@ import { SkeletonTable } from './skeleton-table';
 import {
   Table,
   TableBody,
+  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -16,6 +17,7 @@ import { useIntersectionObserver } from '@/wigets/today-fit-card/lib/use-interse
 import { useEffect } from 'react';
 import { Prisma } from '@prisma/client';
 import { useMediaQuery } from '@/shared/lib/use-media-query';
+import { usePathname } from 'next/navigation';
 
 interface PostsTableProps {
   category: string;
@@ -45,6 +47,7 @@ type PostSummary = Prisma.PostGetPayload<{
 export const PostsTable = ({ category }: PostsTableProps) => {
   const { searchTerm, setSearchTerm } = useSearchTermStore();
   const isTablet = useMediaQuery('(max-width: 1024px)');
+  const pathname = usePathname();
 
   const { posts, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     usePostInfiniteQuery<PostSummary>({ category, limit: 10, searchTerm });
@@ -62,12 +65,17 @@ export const PostsTable = ({ category }: PostsTableProps) => {
 
   if (isLoading) return <SkeletonTable />;
 
+  const allPosts = posts?.pages.flatMap((page) => page.posts) || [];
+
   return (
     <>
       <Table>
         {!isTablet && (
           <TableHeader>
             <TableRow className="hover:bg-inherit">
+              {['/community', '/community/male', '/community/female'].includes(
+                pathname
+              ) && <TableHead />}
               <TableHead className="text-center text-nowrap">제목</TableHead>
               <TableHead className="text-center text-nowrap">작성자</TableHead>
               <TableHead className="text-center text-nowrap">생성일</TableHead>
@@ -76,8 +84,17 @@ export const PostsTable = ({ category }: PostsTableProps) => {
           </TableHeader>
         )}
         <TableBody>
-          {posts?.pages.map((page) =>
-            page.posts.map((post) => (
+          {allPosts.length === 0 ? (
+            <TableRow className="hover:bg-inherit">
+              <TableCell
+                colSpan={4}
+                className="text-center xl:w-[800px] lg:w-[650px]"
+              >
+                등록된 게시물이 없습니다.
+              </TableCell>
+            </TableRow>
+          ) : (
+            allPosts.map((post) => (
               <PostTableRow
                 key={post.id}
                 post={post}
