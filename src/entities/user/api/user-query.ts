@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
 
 export const useUserQuery = (userId: string) => {
@@ -14,7 +14,20 @@ export const useUserQuery = (userId: string) => {
     data: user,
     isLoading,
     isFetching,
-  } = useQuery<Omit<User, 'password'>>({
+  } = useQuery<
+    Prisma.UserGetPayload<{
+      select: {
+        id: true;
+        email: true;
+        nickname: true;
+        profileImageUrl: true;
+        createdAt: true;
+        posts: true;
+        likePosts: true;
+        comments: true;
+      };
+    }>
+  >({
     queryKey: ['user', userId],
     queryFn: fetchUser,
   });
