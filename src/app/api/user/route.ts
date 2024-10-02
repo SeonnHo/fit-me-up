@@ -2,7 +2,7 @@ import prisma from '@/shared/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  const searchParams = request.nextUrl.searchParams;
   const userId = searchParams.get('userId');
 
   try {
@@ -11,12 +11,20 @@ export async function GET(request: NextRequest) {
         where: {
           id: userId,
         },
+        select: {
+          id: true,
+          email: true,
+          nickname: true,
+          profileImageUrl: true,
+          createdAt: true,
+          posts: true,
+          likePosts: true,
+          comments: true,
+        },
       });
 
       if (user) {
-        const { password, ...userWithoutPassword } = user;
-
-        return NextResponse.json(userWithoutPassword);
+        return NextResponse.json(user);
       } else {
         throw new Error('user를 찾을 수 없습니다.');
       }
