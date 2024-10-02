@@ -42,8 +42,6 @@ export async function GET(request: NextRequest) {
       throw new Error('"view" is not of type boolean');
     else isView = JSON.parse(view);
 
-    console.log('isView :', isView);
-
     const post = await prisma.post.update({
       where: {
         id,
