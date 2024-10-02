@@ -40,7 +40,10 @@ export const DesktopHeader = ({
         />
         {session && session.user ? (
           <div className="flex items-center">
-            <div className="flex items-center mx-4 space-x-2 cursor-pointer">
+            <div
+              className="flex items-center mx-4 space-x-2 cursor-pointer"
+              onClick={() => router.push('/mypage')}
+            >
               <Avatar className="h-8 w-8">
                 <AvatarImage src={session.user.image} alt="프로필 이미지" />
                 <AvatarFallback>

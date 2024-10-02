@@ -50,7 +50,13 @@ export const MobileHeader = ({
 
           <SheetContent side="left" className="flex flex-col justify-between">
             <div className="flex flex-col">
-              <SheetHeader className="items-center mt-4">
+              <SheetHeader
+                className="items-center mt-4"
+                onClick={() => {
+                  router.push('/mypage');
+                  setIsOpenSheet(false);
+                }}
+              >
                 <Avatar className="h-16 w-16">
                   <AvatarImage src={session?.user.image} alt="프로필 이미지" />
                   <AvatarFallback>
