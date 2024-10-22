@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/shared/ui/card';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { SkeletonProfileCard } from './skeleton-profile-card';
 
 export const ProfileCard = () => {
   const { data: session, status } = useSession();
@@ -20,7 +21,7 @@ export const ProfileCard = () => {
   }, [status, router]);
 
   if (status === 'loading' || isLoading || isFetching) {
-    return <div>Loading...</div>;
+    return <SkeletonProfileCard />;
   }
 
   return (
@@ -63,14 +64,16 @@ export const ProfileCard = () => {
               <p className="text-sm font-semibold max-md:text-xs">남긴 댓글</p>
             </div>
           </div>
-          <Button
-            variant="outline"
-            type="button"
-            className="w-full font-semibold max-md:text-sm"
-            onClick={() => router.push('/mypage/edit')}
-          >
-            프로필 편집
-          </Button>
+          {session?.user.id === user?.id && (
+            <Button
+              variant="outline"
+              type="button"
+              className="w-full font-semibold max-md:text-sm"
+              onClick={() => router.push('/mypage/edit')}
+            >
+              프로필 편집
+            </Button>
+          )}
         </CardContent>
       </Card>
     </section>

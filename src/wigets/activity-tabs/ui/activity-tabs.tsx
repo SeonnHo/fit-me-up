@@ -7,6 +7,7 @@ import { FaRegHeart } from 'react-icons/fa';
 import { TodayFitFeed } from './today-fit-feed';
 import { useSpecificUserPostInfiniteQuery } from '@/entities/post';
 import { useSession } from 'next-auth/react';
+import { SkeletonActivityTabs } from './skeleton-activity-tabs';
 
 export const ActivityTabs = () => {
   const { data: session, status } = useSession();
@@ -19,7 +20,7 @@ export const ActivityTabs = () => {
     });
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <SkeletonActivityTabs />;
   }
 
   return (
